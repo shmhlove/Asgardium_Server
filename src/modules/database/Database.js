@@ -5,7 +5,6 @@ var database = {};
 database.init = function(app) 
 {
     console.log("[LSH] database.init()");
-    
     connect(app);
 }
 

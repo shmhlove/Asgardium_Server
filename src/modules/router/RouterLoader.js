@@ -6,9 +6,9 @@ router_loader.init = function(app, router)
 	console.log("[LSH] router_loader.init(app, router)");
     
 	var infoLen = configModule.route_info.length;
-	for (var i = 0; i < infoLen; i++)
+	for (var iLoop = 0; iLoop < infoLen; ++iLoop)
     {
-		var curRouter = configModule.route_info[i];
+		var curRouter = configModule.route_info[iLoop];
 		var curModule = require(curRouter.file);
 		
 		if (curRouter.type == "get")
@@ -18,6 +18,14 @@ router_loader.init = function(app, router)
         else if (curRouter.type == "post")
         {
             router.route(curRouter.path).post(curModule[curRouter.method]);
+		}
+        else if (curRouter.type == "put")
+        {
+            router.route(curRouter.path).put(curModule[curRouter.method]);
+		}
+        else if (curRouter.type == "delete")
+        {
+            router.route(curRouter.path).delete(curModule[curRouter.method]);
 		}
         else
         {

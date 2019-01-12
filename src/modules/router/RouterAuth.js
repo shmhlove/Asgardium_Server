@@ -32,32 +32,27 @@ var signup = function(req, res)
             res.send(utilModule.makeResponse(null, error));
             return;
         }
-        else {
-            if (0 < docs.length) {
-                var error = {"code":constantModule.Err_Auth_AlreadySignupUser, "message":"기 가입된 유저", "extras":docs[0]};
-                console.dir(error);
-                res.send(utilModule.makeResponse(null, error));
-                return;
-            }
-            else {
-                createUserId(users, function(userId)
-                {
-                    users.insertMany([{"userId":userId, "userName":userName, "password":userPass}], function(err, result) 
-                    {
-                        if (err) {
-                            var error = {"code":constantModule.Err_Common_DatabaseWrite, "message":"데이터 베이스 기록 실패"};
-                            res.send(utilModule.makeResponse(null, error));
-                            return;
-                        }
-                        else {
-                            var data = result["ops"][0];
-                            res.send(utilModule.makeResponse(data, null));
-                            return;
-                        }
-                    });
-                });
-            }
+        
+        if (0 < docs.length) {
+            var error = {"code":constantModule.Err_Auth_AlreadySignupUser, "message":"기 가입된 유저", "extras":docs[0]};
+            res.send(utilModule.makeResponse(null, error));
+            return;
         }
+
+        createUserId(users, function(userId)
+        {
+            users.insertMany([{"userId":userId, "userName":userName, "password":userPass}], function(err, result) 
+            {
+                if (err) {
+                    var error = {"code":constantModule.Err_Common_DatabaseWrite, "message":"데이터 베이스 기록 실패"};
+                    res.send(utilModule.makeResponse(null, error));
+                    return;
+                }
+
+                var data = result["ops"][0];
+                res.send(utilModule.makeResponse(data, null));
+            });
+        });
     });
 };
 
@@ -91,18 +86,14 @@ var login = function(req, res)
             res.send(utilModule.makeResponse(null, error));
             return;
         }
-        else {
-            if (0 < docs.length) {
-                var data = docs[0];
-                res.send(utilModule.makeResponse(data));
-                return;
-            }
-            else {
-                var error = {"code":constantModule.Err_Auth_AlreadySignupUser, "message":"미가입유저"};
-                res.send(utilModule.makeResponse(null, error));
-                return;
-            }
+
+        if (0 == docs.length) {
+            var error = {"code":constantModule.Err_Auth_AlreadySignupUser, "message":"미가입유저"};
+            res.send(utilModule.makeResponse(null, error));
+            return;
         }
+
+        res.send(utilModule.makeResponse(docs[0], null));
     });
 }
 

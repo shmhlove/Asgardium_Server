@@ -15,8 +15,6 @@ module.exports =
         {file:"./RouterTest", path:"/process/test", method:"test", type:"get"},
         {file:"./RouterAuth", path:"/process/signup", method:"signup", type:"post"},
         {file:"./RouterAuth", path:"/process/login", method:"login", type:"post"},
-//        {file:"./RouterTest", path:"/process/login", method:"test", type:"post"},
-//        {file:"./RouterTest", path:"/process/login;token", method:"test", type:"post"},
     ],
     
 //    facebook : 
