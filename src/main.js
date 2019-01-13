@@ -21,7 +21,7 @@ var expressBodyParser = require("body-parser");
 var http = require("http");
 var path = require("path");
 var shell = require("shelljs");
-var socketio = require("socket.io");
+var webSocket = require("socket.io");
 var cors = require("cors");
 
 // my modules
@@ -69,8 +69,8 @@ var server = http.createServer(expressApp).listen(expressApp.get("port"), functi
 });
 
 // 소켓 이벤트 등록
-var io = socketio.listen(server);
-io.sockets.on("connection", function(socket)
+var socketio = webSocket(server);
+socketio.of("sockettest").on("connection", function(socket)
 {
     console.log("connection info : ", socket.request.connection._peername);
     socket.remoteAddress = socket.request.connection._peername.address;
@@ -80,11 +80,6 @@ io.sockets.on("connection", function(socket)
     {
         console.log("message 이벤트를 받았습니다.");
         console.dir(message);
-
-        if (message.recepient == "ALL")
-        {
-            console.dir("나를 포함한 모든 클라이언트에게 message 이벤트를 전송합니다.");
-            io.sockets.emit('message', message);
-        }
+        socketio.sockets.emit('message', message);
     });
 });

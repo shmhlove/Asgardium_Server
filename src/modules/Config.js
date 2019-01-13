@@ -1,7 +1,7 @@
 module.exports = 
 {
-    server_host : "13.124.43.70",
-    //server_host : "localhost",
+    //server_host : "13.124.43.70",
+    server_host : "localhost",
     server_port : 3001,
     
     db_url : "mongodb://localhost:27017/Asgardium",
