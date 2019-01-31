@@ -69,17 +69,36 @@ var server = http.createServer(expressApp).listen(expressApp.get("port"), functi
 });
 
 // 소켓 이벤트 등록
-var socketio = webSocket(server);
-socketio.of("sockettest").on("connection", function(socket)
+
+// 아래 코드처럼 네임스페이스가 들어가면 전체메시지 발송이 안되네..
+//var socketio = webSocket(server);
+//socketio.of("namespace").on("connection", function(socket)
+
+var socketio = webSocket.listen(server);
+socketio.sockets.on("connection", function(socket)
 {
-    console.log("connection info : ", socket.request.connection._peername);
+    // socket 객체에 클라이언트의 Host와 Port 정보를 속성으로 추가
+    console.log("[LSH] connection to : ", socket.id, "->", socket.request.connection._peername);
     socket.remoteAddress = socket.request.connection._peername.address;
     socket.remotePort = socket.request.connection._peername.port;
     
     socket.on("message", function(message)
     {
-        console.log("message 이벤트를 받았습니다.");
-        console.dir(message);
+        console.log("[LSH] Recive Socket Data : " + message);
+        
+        // 이 클라이언트에게 메시지 보내기
+        //socket.emit('message', message);
+        
+        // 모든 클라이언트에게 메시지 보내기
         socketio.sockets.emit('message', message);
+        
+        // 나를 제외한 모든 클라이언트에게 메시지 보내기
+        socket.broadcast.emit('message', message);
+    });
+    
+    socket.on("disconnect", function(message)
+    {
+        console.log("disconnect");
+        console.dir(message);
     });
 });
