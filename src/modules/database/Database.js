@@ -14,8 +14,8 @@ var connect = function(app)
     
     mongoose.Promise = global.Promise;
     mongoose.connect(configModule.db_url, { useCreateIndex: true, useNewUrlParser: true });
+    database.db = mongoose.connection;
     
-    mongoose.set('useCreateIndex', true);
     database.db.on("error", console.error.bind(console, "Mongoose connection error."));
     
     database.db.on("open", function()
