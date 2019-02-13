@@ -35,8 +35,8 @@ var expressApp = express();
 
 // HTTPS용 인증서
 var options = {  
-    key: fs.readFileSync('../keys/key.pem'),
-    cert: fs.readFileSync('../keys/cert.pem')
+    key: fs.readFileSync(path.join(__dirname, "keys", "key.pem")),
+    cert: fs.readFileSync(path.join(__dirname, "keys", "cert.pem"))
 };
 
 // 포트 및 호스트 설정
