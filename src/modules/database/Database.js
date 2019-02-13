@@ -13,9 +13,9 @@ var connect = function(app)
     console.log("[LSH] 데이터베이스 연결을 시도합니다.(%s)", configModule.db_url);
     
     mongoose.Promise = global.Promise;
-    mongoose.connect(configModule.db_url, { useNewUrlParser: true });
-    database.db = mongoose.connection;
+    mongoose.connect(configModule.db_url, { useCreateIndex: true, useNewUrlParser: true });
     
+    mongoose.set('useCreateIndex', true);
     database.db.on("error", console.error.bind(console, "Mongoose connection error."));
     
     database.db.on("open", function()
