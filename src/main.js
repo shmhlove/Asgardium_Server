@@ -19,10 +19,12 @@ var expressBodyParser = require("body-parser");
 
 // 3rd party modules : Utility
 var http = require("http");
+var https = require("https");
 var path = require("path");
 var shell = require("shelljs");
 var webSocket = require("socket.io");
 var cors = require("cors");
+var fs = require('fs');
 
 // my modules
 var configModule = require("./modules/Config");
@@ -30,6 +32,12 @@ var routerModule = require("./modules/router/RouterLoader");
 var databaseModule = require("./modules/database/Database");
 
 var expressApp = express();
+
+// HTTPS용 인증서
+var options = {  
+    key: fs.readFileSync('../keys/key.pem'),
+    cert: fs.readFileSync('../keys/cert.pem')
+};
 
 // 포트 및 호스트 설정
 expressApp.set("port", process.env.PORT || configModule.server_port);
@@ -65,7 +73,13 @@ if (undefined != lsof.split(" ")[37])
 // 웹서버 시작
 var server = http.createServer(expressApp).listen(expressApp.get("port"), function()
 {
-    console.log("[LSH] Express 서버 시작됨");
+    console.log("[LSH] Express HTTP 서버 시작됨");
+});
+
+// HTTPS 웹서버 시작
+https.createServer(options, expressApp).listen(configModule.server_port_for_https, function()
+{
+    console.log("[LSH] Express HTTPS 서버 시작됨");
 });
 
 // 소켓 이벤트 등록
