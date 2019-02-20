@@ -45,8 +45,9 @@ var signup = function(req, res)
         {
             users.insertMany(
             [{
-                "userId":userId, "userEmail":userEmail, "userName":userName, "password":userPass
-            }], 
+                "userId":userId, "userEmail":userEmail, "userName":userName, "password":userPass,
+                "createdAt":Date.now(), "updatedAt":Date.now(), "miningPowerAt":Date.now()
+            }],
             function(err, result) 
             {
                 if (err) {

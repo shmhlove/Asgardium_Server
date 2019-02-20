@@ -11,6 +11,7 @@ Schema.createSchema = function(mongoose)
         , password: {type:String, "default":""}
         , createdAt: {type:Date, index:{unique:false}, "default":Date.now}
         , updatedAt: {type:Date, index:{unique:false}, "default":Date.now}
+        , miningPowerAt: {type:Date, index:{unique:false}, "default":Date.now}
     });
     
     return UserSchema;
