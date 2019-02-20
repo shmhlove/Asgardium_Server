@@ -20,7 +20,7 @@ var signup = function(req, res)
     }
     
     // 기가입 확인 : 에러발생
-    users.find({"userEmail":userEmail}).toArray(function(err, docs) 
+    users.find({"user_email":userEmail}).toArray(function(err, docs) 
     {
         if (err) {
             var error = {"code":constantModule.Err_Auth_NotFoundUser, "message":"데이터 베이스 유저 조회 실패"};
@@ -45,8 +45,8 @@ var signup = function(req, res)
         {
             users.insertMany(
             [{
-                "userId":userId, "userEmail":userEmail, "userName":userName, "password":userPass,
-                "createdAt":Date.now(), "updatedAt":Date.now(), "miningPowerAt":Date.now()
+                "user_id":userId, "user_email":userEmail, "user_name":userName, "password":userPass,
+                "created_at":Date.now(), "updated_at":Date.now(), "mining_power_at":Date.now()
             }],
             function(err, result) 
             {
@@ -86,7 +86,7 @@ var login = function(req, res)
     }
     
     // 기가입 확인 : 에러발생
-    users.find({"userEmail":userEmail}).toArray(function(err, docs) 
+    users.find({"user_email":userEmail}).toArray(function(err, docs) 
     {
         if (err) {
             var error = {"code":constantModule.Err_Auth_NotFoundUser, "message":"데이터 베이스 유저 조회 실패"};
@@ -114,7 +114,7 @@ var login = function(req, res)
 var createUserId = function(users, callback)
 {
     var userId = crypto.randomBytes(20).toString('hex');
-    users.find({"userId":userId}).toArray(function(err, docs)
+    users.find({"user_id":userId}).toArray(function(err, docs)
     {
         if (0 == docs.length) {
             callback(userId);
