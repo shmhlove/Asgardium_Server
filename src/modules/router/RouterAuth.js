@@ -80,7 +80,7 @@ var login = function(req, res)
     // 데이터 베이스 확인 : 에러발생
     var users = req.app.get("database").db.collection("users");
     if (!users) {
-        var error = {"code":constantModule.Err_Common_NotFoundCollection, "message":"데이터베이스 컬렉션 조회 실패"};
+        var error = {"code":constantModule.Err_Common_NotFoundCollection, "message":"users 데이터베이스 컬렉션 조회 실패"};
         res.send(utilModule.makeResponse(req, null, error));
         return;
     }

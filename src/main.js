@@ -2,8 +2,8 @@
 * 테스트
 -> mac : sudo mongod --dbpath /data/Asgardium
 -> win : mongod --dbpath "C:\Users\HoYaNoteBook\AppData\Local\MongoDB\Asgardium"
--> local : http://localhost:3001/process/test
--> aws : http://13.124.43.70:3001/process/test
+-> local : https://localhost:3001/process/test
+-> aws : https://13.124.43.70:3001/process/test
 
 - 기타정보
     : jsonwebtoken: JSON Web Token 을 손쉽게 생성하고, 또 검증도 해줍니다.
