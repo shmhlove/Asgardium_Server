@@ -15,6 +15,8 @@ module.exports =
     [
         {file:"./RouterTest", path:"/process/test", method:"test", type:"get"},
         {file:"./RouterTest", path:"/process/test", method:"test", type:"post"},
+        {file:"./RouterTest", path:"/process/test_use_mining_power", method:"test_use_mining_power", type:"post"},
+        {file:"./RouterTest", path:"/process/test_reset_mining_power", method:"test_reset_mining_power", type:"post"},
         {file:"./RouterAuth", path:"/process/signup", method:"signup", type:"post"},
         {file:"./RouterAuth", path:"/process/login", method:"login", type:"post"},
         {file:"./RouterTable", path:"/static/config", method:"config", type:"get"},
