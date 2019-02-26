@@ -30,6 +30,9 @@ var fs = require('fs');
 var configModule = require("./modules/Config");
 var routerModule = require("./modules/router/RouterLoader");
 var databaseModule = require("./modules/database/Database");
+var routerUtilModule = require("./modules/router/RouterUtil");
+
+routerUtilModule.makeJWT();
 
 var expressApp = express();
 
