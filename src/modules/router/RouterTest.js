@@ -69,11 +69,11 @@ var test_use_mining_power = function(req, res)
             var timeSpan = (Date.now() - userDocs[0].mining_power_at);
             var curPowerCount = timeSpan / configDocs[0].basic_charge_time;
             console.log("갯수 : " + curPowerCount);
-            if (curPowerCount < configDocs[0].basic_mining_power) {
+            if (curPowerCount < configDocs[0].basic_mining_power_count) {
                 userDocs[0].mining_power_at = Math.min(Date.now(), (userDocs[0].mining_power_at + configDocs[0].basic_charge_time));
             }
             else {
-                userDocs[0].mining_power_at = Date.now() - (configDocs[0].basic_charge_time * (configDocs[0].basic_mining_power - 1));
+                userDocs[0].mining_power_at = Date.now() - (configDocs[0].basic_charge_time * (configDocs[0].basic_mining_power_count - 1));
             }
             
             // 변경사항 데이터 베이스에 저장
@@ -149,7 +149,7 @@ var test_reset_mining_power = function(req, res)
                 return;
             }
             
-            userDocs[0].mining_power_at = Date.now() - (configDocs[0].basic_charge_time * configDocs[0].basic_mining_power);
+            userDocs[0].mining_power_at = Date.now() - (configDocs[0].basic_charge_time * configDocs[0].basic_mining_power_count);
             
             // 변경사항 데이터 베이스에 저장
             /*
