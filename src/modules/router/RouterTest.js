@@ -78,10 +78,10 @@ var test_use_mining_power = function(req, res)
             
             // 변경사항 데이터 베이스에 저장
             /*
-                db.monsters.update({ name: 'Slime' }, { $set: { hp: 30 } });
-                db.monsters.findAndModify({ query: { name: 'Demon' }, update: { $set: { att: 150 } }, new: true }); // { 데몬 }
-                db.monsters.updateOne({ name: 'Slime' }, { $set: { hp: 25 } });
-                db.monsters.findOneAndUpdate({ name: 'Demon' }, { $set: { att: 150 } }, { returnNewDocument: true });
+                users.update({ name: 'Slime' }, { $set: { hp: 30 } });
+                users.findAndModify({ query: { name: 'Demon' }, update: { $set: { att: 150 } }, new: true }); // { 데몬 }
+                users.updateOne({ name: 'Slime' }, { $set: { hp: 25 } });
+                users.findOneAndUpdate({ name: 'Demon' }, { $set: { att: 150 } }, { returnNewDocument: true });
             */
             users.updateOne({ "user_id":userId }, { $set: { mining_power_at: userDocs[0].mining_power_at } });
             
@@ -153,10 +153,10 @@ var test_reset_mining_power = function(req, res)
             
             // 변경사항 데이터 베이스에 저장
             /*
-                db.monsters.update({ name: 'Slime' }, { $set: { hp: 30 } });
-                db.monsters.findAndModify({ query: { name: 'Demon' }, update: { $set: { att: 150 } }, new: true }); // { 데몬 }
-                db.monsters.updateOne({ name: 'Slime' }, { $set: { hp: 25 } });
-                db.monsters.findOneAndUpdate({ name: 'Demon' }, { $set: { att: 150 } }, { returnNewDocument: true });
+                users.update({ name: 'Slime' }, { $set: { hp: 30 } });
+                users.findAndModify({ query: { name: 'Demon' }, update: { $set: { att: 150 } }, new: true }); // { 데몬 }
+                users.updateOne({ name: 'Slime' }, { $set: { hp: 25 } });
+                users.findOneAndUpdate({ name: 'Demon' }, { $set: { att: 150 } }, { returnNewDocument: true });
             */
             users.updateOne({ "user_id":userId }, { $set: { mining_power_at: userDocs[0].mining_power_at } });
             

@@ -73,7 +73,7 @@ if (undefined != lsof.split(" ")[37])
     shell.exec("kill -9 " + lsof.split(" ")[37]);
 }
 
-// 웹서버 시작
+// HTTP 웹서버 시작
 var server = http.createServer(expressApp).listen(expressApp.get("port"), function()
 {
     console.log("[LSH] Express HTTP 서버 시작됨");

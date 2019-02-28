@@ -8,7 +8,9 @@ module.exports =
     db_url : "mongodb://localhost:27017/Asgardium",
     db_schemas: 
     [
-        { file:"./UserSchema", collection:"users", schemaName:"UserSchema", modelName:"UserModel" }
+        { file:"./UserSchema", collection:"users", schemaName:"UserSchema", modelName:"UserModel" },
+        { file:"./ConfigSchema", collection:"config", schemaName:"ConfigSchema", modelName:"ComfigModel" },
+        { file:"./OracleCompanyAMSchema", collection:"oracle_company_am", schemaName:"OracleCompanyAMSchema", modelName:"OracleCompanyAMModel" }
     ],
     
     route_info:
@@ -20,6 +22,7 @@ module.exports =
         {file:"./RouterAuth", path:"/process/signup", method:"signup", type:"post"},
         {file:"./RouterAuth", path:"/process/login", method:"login", type:"post"},
         {file:"./RouterTable", path:"/static/config", method:"config", type:"get"},
+        {file:"./RouterTable", path:"/static/oracle_company_am", method:"oracle_company_am", type:"get"}
     ],
     
 //    facebook : 

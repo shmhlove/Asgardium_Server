@@ -47,7 +47,7 @@ var makeJWT = function()
         
         // 비공개 클레임 : 서버 - 클라 간 협의하에 사용하는 클레임?? 무슨말이지?
         "userId": "11028373727102",
-        "username": "velopert"
+        "username": "MangoNight"
     };
     
     const encodedPayload = new Buffer(JSON.stringify(payload))
