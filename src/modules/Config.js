@@ -10,7 +10,8 @@ module.exports =
     [
         { file:"./UserSchema", collection:"users", schemaName:"UserSchema", modelName:"UserModel" },
         { file:"./ConfigSchema", collection:"config", schemaName:"ConfigSchema", modelName:"ComfigModel" },
-        { file:"./OracleCompanyAMSchema", collection:"oracle_company_am", schemaName:"OracleCompanyAMSchema", modelName:"OracleCompanyAMModel" }
+        { file:"./OracleCompanyAMSchema", collection:"oracle_company_am", schemaName:"OracleCompanyAMSchema", modelName:"OracleCompanyAMModel" },
+        { file:"./AsgardiumResourceDataSchema", collection:"asgardium_resource_data", schemaName:"AsgardiumResourceDataSchema", modelName:"AsgardiumResourceDataModel" }
     ],
     
     route_info:
@@ -22,7 +23,8 @@ module.exports =
         {file:"./RouterAuth", path:"/process/signup", method:"signup", type:"post"},
         {file:"./RouterAuth", path:"/process/login", method:"login", type:"post"},
         {file:"./RouterTable", path:"/static/config", method:"config", type:"get"},
-        {file:"./RouterTable", path:"/static/oracle_company_am", method:"oracle_company_am", type:"get"}
+        {file:"./RouterTable", path:"/static/oracle_company_am", method:"oracle_company_am", type:"get"},
+        {file:"./RouterTable", path:"/static/asgardium_resource_data", method:"asgardium_resource_data", type:"get"}
     ],
     
 //    facebook : 
