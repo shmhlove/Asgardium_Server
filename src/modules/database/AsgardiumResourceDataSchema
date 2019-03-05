@@ -6,7 +6,7 @@ Schema.createSchema = function(mongoose)
     {
         "resource_id" : {type:Number, "default":0},
         "name_strid" : {type:Number, "default":0},
-        "icon_id" : {type:Number, "default":0},
+        "icon_name" : {type:String, "default":""},
         "value" : {type:Number, "default":0},
         "rid_fuel1" : {type:Number, "default":0},
         "rid_fuel2" : {type:Number, "default":0}
