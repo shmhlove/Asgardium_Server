@@ -127,7 +127,7 @@ var processCompanyForMiningTable = function(companyForMining, serverConfig, item
                     , "is_basic_company" : true
                 };
                 
-                companyForMining.insert(basicCompanyInfo, function(err, result) 
+                companyForMining.insertOne(basicCompanyInfo, function(err, result) 
                 {
                     if (err) {
                         console.log("[LSH] 심각한 오류 : company_for_mining insert 안됨(%s)", item.instance_id);
