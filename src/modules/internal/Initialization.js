@@ -93,7 +93,7 @@ var processCompanyForMiningTable = function(companyForMining, serverConfig, item
                 var basicCompanyInfo = { $set: {
                     "resource_id" : item.resource_id
                     , "name_strid" : item.name_strid
-                    , "emblem_id" : item.emblem_id
+                    , "emblem_image" : item.emblem_image
                     , "efficiency_lv" : item.efficiency_lv
                     , "supply_count" : serverConfig.basic_active_mining_supply
                     , "is_basic_company" : true
@@ -121,7 +121,7 @@ var processCompanyForMiningTable = function(companyForMining, serverConfig, item
                     "instance_id" : item.instance_id
                     , "resource_id" : item.resource_id
                     , "name_strid" : item.name_strid
-                    , "emblem_id" : item.emblem_id
+                    , "emblem_image" : item.emblem_image
                     , "efficiency_lv" : item.efficiency_lv
                     , "supply_count" : serverConfig.basic_active_mining_supply
                     , "is_basic_company" : true
