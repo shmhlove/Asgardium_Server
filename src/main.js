@@ -31,6 +31,7 @@ var configModule = require("./modules/Config");
 var routerModule = require("./modules/router/RouterLoader");
 var databaseModule = require("./modules/database/Database");
 var routerUtilModule = require("./modules/router/RouterUtil");
+var initModule = require("./modules/internal/Initialization");
 
 routerUtilModule.makeJWT();
 
@@ -83,6 +84,18 @@ var server = http.createServer(expressApp).listen(expressApp.get("port"), functi
 https.createServer(options, expressApp).listen(configModule.server_port_for_https, function()
 {
     console.log("[LSH] Express HTTPS 서버 시작됨");
+    
+    var initServer = function()
+    {
+        var database = expressApp.get("database");
+        if (database) {
+            initModule.Initialization(expressApp);
+        }
+        else {
+            setTimeout(initServer, 100);
+        }
+    };
+    setTimeout(initServer, 100);
 });
 
 // 소켓 이벤트 등록

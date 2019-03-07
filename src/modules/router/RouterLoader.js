@@ -32,7 +32,7 @@ router_loader.init = function(app, router)
             router.route(curRouter.path).post(curModule[curRouter.method]);
 		}
 		
-		console.log("[LSH] 라우팅 모듈 추가 : (" + curRouter.method + ") : " + curRouter.type + " " + curRouter.path);
+		console.log("[LSH] 라우팅 모듈 추가 : " + curRouter.type + " " + curRouter.path);
 	}
     
     // 라우터 객체 등록
