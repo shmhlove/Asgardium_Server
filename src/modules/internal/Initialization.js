@@ -99,7 +99,7 @@ var processCompanyForMiningTable = function(companyForMining, serverConfig, item
                     , "is_basic_company" : true
                 }};
 
-                companyForMining.update({ instance_id: item.instance_id }, basicCompanyInfo, function(err)
+                companyForMining.updateOne({ instance_id: item.instance_id }, basicCompanyInfo, function(err)
                 {
                     if (err) {
                         console.log("[LSH] 심각한 오류 : company_for_mining update 안됨(%s)", item.instance_id);
