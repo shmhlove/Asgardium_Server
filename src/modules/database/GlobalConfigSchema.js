@@ -2,7 +2,7 @@
 var Schema = {};
 Schema.createSchema = function(mongoose)
 {
-    var ConfigSchema = mongoose.Schema(
+    var GlobalConfigSchema = mongoose.Schema(
     {
         basic_mining_power_count: {type:Number, "default":0}
         , basic_charge_time: {type:Number, "default":0}
@@ -13,7 +13,7 @@ Schema.createSchema = function(mongoose)
         , cost_unit_company3: {type:Number, "default":0}
     });
     
-    return ConfigSchema;
+    return GlobalConfigSchema;
 };
 
 module.exports = Schema;

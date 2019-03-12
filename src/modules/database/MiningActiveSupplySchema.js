@@ -2,14 +2,14 @@
 var Schema = {};
 Schema.createSchema = function(mongoose)
 {
-    var ActiveMiningSupply = mongoose.Schema(
+    var MiningActiveSupplySchema = mongoose.Schema(
     {
         "level" : {type:Number, "default":0}
-        , "cost_unit" : {type:Number, "default":0}
+        , "cost_unit_per_weight" : {type:Number, "default":0}
         , "supply" : {type:Number, "default":0}
     });
     
-    return ActiveMiningSupply;
+    return MiningActiveSupplySchema;
 };
 
 module.exports = Schema;

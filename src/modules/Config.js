@@ -8,13 +8,24 @@ module.exports =
     db_url : "mongodb://localhost:27017/Asgardium",
     db_schemas: 
     [
-        { file:"./UserSchema", collection:"users", schemaName:"UserSchema", modelName:"UserModel" }
-        , { file:"./ConfigSchema", collection:"config", schemaName:"ConfigSchema", modelName:"ComfigModel" }
-        , { file:"./OracleCompanyAMSchema", collection:"oracle_company_am", schemaName:"OracleCompanyAMSchema", modelName:"OracleCompanyAMModel" }
-        , { file:"./AsgardiumResourceDataSchema", collection:"asgardium_resource_data", schemaName:"AsgardiumResourceDataSchema", modelName:"AsgardiumResourceDataModel" }
-        , { file:"./CompanyForMiningSchema", collection:"company_for_mining", schemaName:"CompanyForMiningSchema", modelName:"CompanyForMiningModel" }
-        , { file:"./ActiveMiningSupplySchema", collection:"active_mining_supply", schemaName:"ActiveMiningSupplySchema", modelName:"ActiveMiningSupplyModel" }
-        , { file:"./ActiveMiningQuantitySchema", collection:"active_mining_quantity", schemaName:"ActiveMiningQuantitySchema", modelName:"ActiveMiningQuantityModel" }
+        { file:"./GlobalConfigSchema", collection:"global_config", schemaName:"GlobalConfigSchema", modelName:"GlobalConfigModel" }
+        , { file:"./GlobalUnitDataSchema", collection:"global_unit_data", schemaName:"GlobalUnitDataSchema", modelName:"GlobalUnitDataModel" }
+        
+        , { file:"./InstanceMiningActiveCompanySchema", collection:"instance_mining_active_company", schemaName:"InstanceMiningActiveCompanySchema", modelName:"InstanceMiningActiveCompanyModel" }
+        , { file:"./InstanceUsersSchema", collection:"instance_users", schemaName:"InstanceUsersSchema", modelName:"InstanceUsersModel" }
+        
+        , { file:"./MiningActiveCompanyNPCSchema", collection:"mining_active_company_npc", schemaName:"MiningActiveCompanyNPCSchema", modelName:"MiningActiveCompanyNPCModel" }
+        , { file:"./MiningActiveQuantitySchema", collection:"mining_active_quantity", schemaName:"MiningActiveQuantitySchema", modelName:"MiningActiveQuantityModel" }
+        , { file:"./MiningActiveSupplySchema", collection:"mining_active_supply", schemaName:"MiningActiveSupplySchema", modelName:"MiningActiveSupplyModel" }
+    ],
+    
+    pre_load_table:
+    [
+        "global_config", 
+        "global_unit_data", 
+        "mining_active_company_npc", 
+        "mining_active_quantity", 
+        "mining_active_supply"
     ],
     
     route_info:
@@ -23,14 +34,17 @@ module.exports =
         , {file:"./RouterTest", path:"/process/test", method:"test", type:"post"}
         , {file:"./RouterTest", path:"/process/test_use_mining_power", method:"test_use_mining_power", type:"post"}
         , {file:"./RouterTest", path:"/process/test_reset_mining_power", method:"test_reset_mining_power", type:"post"}
+        
         , {file:"./RouterAuth", path:"/process/signup", method:"signup", type:"post"}
-        , {file:"./RouterAuth", path:"/process/login", method:"login", type:"post"}
-        , {file:"./RouterTable", path:"/static/config", method:"config", type:"get"}
-        , {file:"./RouterTable", path:"/static/oracle_company_am", method:"oracle_company_am", type:"get"}
-        , {file:"./RouterTable", path:"/static/asgardium_resource_data", method:"asgardium_resource_data", type:"get"}
-        , {file:"./RouterTable", path:"/mining/company_for_mining", method:"company_for_mining", type:"get"}
-        , {file:"./RouterTable", path:"/mining/active_mining_quantity", method:"active_mining_quantity", type:"get"}
-        , {file:"./RouterTable", path:"/mining/active_mining_supply", method:"active_mining_supply", type:"get"}
+        , {file:"./RouterAuth", path:"/process/signin", method:"signin", type:"post"}
+        
+        , {file:"./RouterTable", path:"/table/global_config", method:"global_config", type:"get"}
+        , {file:"./RouterTable", path:"/table/global_unit_data", method:"global_unit_data", type:"get"}
+        , {file:"./RouterTable", path:"/table/mining_active_company_npc", method:"mining_active_company_npc", type:"get"}
+        , {file:"./RouterTable", path:"/table/mining_active_quantity", method:"mining_active_quantity", type:"get"}
+        , {file:"./RouterTable", path:"/table/mining_active_supply", method:"mining_active_supply", type:"get"}
+        , {file:"./RouterTable", path:"/table/instance_users", method:"instance_users", type:"get"}
+        , {file:"./RouterTable", path:"/table/instance_mining_active_company", method:"instance_mining_active_company", type:"get"}
     ],
     
 //    facebook : 

@@ -1,5 +1,45 @@
 const crypto = require('crypto');
 
+var requestLog = function(req)
+{
+    console.log("[LSH] %s %s 요청", req.method, req.url);
+    console.dir(req.body);
+}
+
+var loadCollection = function(req, app, collectionName, callback)
+{
+    var table = getCollection(app, collectionName);
+    if (!table) {
+        var error = makeError(constant.Err_Common_NotFoundCollection, "Not found collection ( " + collectionName + " )");
+        callback(makeResponse(req, null, error));
+    }
+    
+    table.find().toArray(function(err, docs) 
+    {
+        if (err) {
+            var error = makeError(constant.Err_Common_FailedFindCollection, "Failed find collection ( " + collectionName + " )");
+            callback(makeResponse(req, null, error));
+        }
+
+        if (0 == docs.length) {
+            var error = makeError(constant.Err_Common_EmptyCollection, "Empty collection ( " + collectionName + " )");
+            callback(makeResponse(req, null, error));
+        }
+        
+        callback(makeResponse(req, docs, null));
+    });
+}
+
+var getCollection = function(app, collection)
+{
+    return app.get("database").db.collection(collection);
+}
+
+var makeError = function(code, message, extras)
+{
+    return {"code":code, "message":message, "extras":extras};
+}
+
 var makeResponse = function(req, data, error)
 {
     var result = {
@@ -78,5 +118,9 @@ var makeJWT = function()
     console.log('JWT: ', encodedHeader + '.' + encodedPayload + '.' + signature);
 }
 
+module.exports.requestLog = requestLog;
+module.exports.getCollection = getCollection;
+module.exports.loadCollection = loadCollection;
+module.exports.makeError = makeError;
 module.exports.makeResponse = makeResponse;
 module.exports.makeJWT = makeJWT;

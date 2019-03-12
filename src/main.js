@@ -27,13 +27,13 @@ var cors = require("cors");
 var fs = require('fs');
 
 // my modules
-var configModule = require("./modules/Config");
-var routerModule = require("./modules/router/RouterLoader");
-var databaseModule = require("./modules/database/Database");
-var routerUtilModule = require("./modules/router/RouterUtil");
-var initModule = require("./modules/internal/Initialization");
+var config = require("./modules/Config");
+var routerLoader = require("./modules/router/RouterLoader");
+var database = require("./modules/database/Database");
+var routerUtil = require("./modules/router/RouterUtil");
+var initialization = require("./modules/internal/Initialization");
 
-routerUtilModule.makeJWT();
+routerUtil.makeJWT();
 
 var expressApp = express();
 
@@ -44,25 +44,21 @@ var options = {
 };
 
 // 포트 및 호스트 설정
-expressApp.set("port", process.env.PORT || configModule.server_port);
-expressApp.set("host", configModule.server_host);
+expressApp.set("port", process.env.PORT || config.server_port);
+expressApp.set("host", config.server_host);
 
 // body파서 등록(POST방식에서 body를 쉽게 읽을 수 있도록)
 expressApp.use(expressBodyParser.urlencoded({extended: false}));
 expressApp.use(expressBodyParser.json());
 
 // static 패스 등록(public디렉토리를 /public으로 접근할 수 있도록)
-expressApp.use("/public", expressStatic(path.join(__dirname, "public")));
+//expressApp.use("/public", expressStatic(path.join(__dirname, "public")));
 
 // 데이터 베이스 등록
-databaseModule.init(expressApp);
+database.init(expressApp);
 
 // 라우터 등록
-var router = express.Router();
-routerModule.init(expressApp, router);
-
-// 웹 소켓 설정 : cors를 미들웨어로 사용하도록 등록
-expressApp.use(cors());
+routerLoader.init(expressApp, express.Router());
 
 // 실행중인 프로세스 종료
 // sudo lsof -i :"포트 번호"
@@ -75,30 +71,31 @@ if (undefined != lsof.split(" ")[37])
 }
 
 // HTTP 웹서버 시작
-var server = http.createServer(expressApp).listen(expressApp.get("port"), function()
+http.createServer(expressApp).listen(expressApp.get("port"), function()
 {
-    console.log("[LSH] Express HTTP 서버 시작됨");
+    console.log("[LSH] Start Express HTTP Server");
 });
 
 // HTTPS 웹서버 시작
-https.createServer(options, expressApp).listen(configModule.server_port_for_https, function()
+var server = https.createServer(options, expressApp).listen(config.server_port_for_https, function()
 {
-    console.log("[LSH] Express HTTPS 서버 시작됨");
+    console.log("[LSH] Start Express HTTPS Server");
     
-    var initServer = function()
+    var initServer = setInterval(function()
     {
         var database = expressApp.get("database");
         if (database) {
-            initModule.Initialization(expressApp);
+            initialization.initialization(expressApp, function()
+            {
+                console.log("[LSH] Ready Express HTTPS Server");
+            });
+            clearInterval(initServer);
         }
-        else {
-            setTimeout(initServer, 100);
-        }
-    };
-    setTimeout(initServer, 100);
+    }, 100);
 });
 
-// 소켓 이벤트 등록
+// 웹 소켓 설정 : cors를 미들웨어로 사용하도록 등록
+expressApp.use(cors());
 
 // 아래 코드처럼 네임스페이스가 들어가면 전체메시지 발송이 안되네..
 //var socketio = webSocket(server);

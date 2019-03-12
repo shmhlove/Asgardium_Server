@@ -1,51 +1,51 @@
 var mongoose = require("mongoose");
-var configModule = require("../Config");
+var config = require("../Config");
 
 var database = {};
 database.init = function(app) 
 {
-    console.log("[LSH] database.init()");
+    console.log("[LSH] called database.init()");
     connect(app);
 }
 
 var connect = function(app)
 {
-    console.log("[LSH] 데이터베이스 연결을 시도합니다.(%s)", configModule.db_url);
+    console.log("[LSH] Try Connect DB(%s)", config.db_url);
     
     mongoose.Promise = global.Promise;
-    mongoose.connect(configModule.db_url, { useCreateIndex: true, useNewUrlParser: true });
+    mongoose.connect(config.db_url, { useCreateIndex: true, useNewUrlParser: true });
     database.db = mongoose.connection;
     
-    database.db.on("error", console.error.bind(console, "Mongoose connection error."));
+    database.db.on("error", console.error.bind(console, "Mongoose error"));
     
     database.db.on("open", function()
     {
-        console.log("[LSH] 데이터 베이스에 연결되었습니다.");
-        app.set("database", createSchema());
+        console.log("[LSH] Succeed Connect DB");
+        createSchema();
+        app.set("database", database);
     });
     
     database.db.on("disconnected", function()
     {
-        console.log("[LSH] 데이터 베이스 연결이 종료되었습니다.");
+        console.log("[LSH] Disconnect DB");
+        app.set("database", null);
     });
 };
 
 // 스키마 생성 함수
 var createSchema = function(app)
 {
-    var schemaLen = configModule.db_schemas.length;
+    var schemaLen = config.db_schemas.length;
     for (var iLoop = 0; iLoop < schemaLen; ++iLoop)
     {
-        var curConfig = configModule.db_schemas[iLoop];
-        var curSchema = require(curConfig.file).createSchema(mongoose);
-        var curModel = mongoose.model(curConfig.collection, curSchema);
-        database[curConfig.schemaName] = curSchema;
-        database[curConfig.modelName] = curModel;
+        var schemaInfo = config.db_schemas[iLoop];
+        var schema = require(schemaInfo.file).createSchema(mongoose);
+        var model = mongoose.model(schemaInfo.collection, schema);
+        database[schemaInfo.schemaName] = schema;
+        database[schemaInfo.modelName] = model;
         
-        console.log("[LSH] 데이터 베이스 스키마 생성 : " + curConfig.schemaName);
+        console.log("[LSH] Create DB Schema : " + schemaInfo.schemaName);
     }
-    
-    return database;
 };
 
 module.exports = database;

@@ -3,7 +3,7 @@ var crypto = require("crypto");
 var Schema = {};
 Schema.createSchema = function(mongoose)
 {
-    var UserSchema = mongoose.Schema(
+    var InstanceUsersSchema = mongoose.Schema(
     {
         user_id: {type:String, "default":""}
         , user_email: {type:String, index:"hashed", "default":""}
@@ -14,7 +14,7 @@ Schema.createSchema = function(mongoose)
         , mining_power_at: {type:Date, index:{unique:false}, "default":Date.now}
     });
     
-    return UserSchema;
+    return InstanceUsersSchema;
 };
 
 module.exports = Schema;

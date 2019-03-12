@@ -1,137 +1,150 @@
+var config = require("../Config");
 var crypto = require("crypto");
+var routerUtil = require("../router/RouterUtil");
 
-var Initialization = function(app)
+var initialization = function(app, callback)
 {
-    setCompanyForMiningTable(app);
+    console.log("[LSH] called initialization");
+    
+    var preLoadTableLen = config.pre_load_table.length;
+    for (var iLoop = 0; iLoop < preLoadTableLen; ++iLoop)
+    {
+        preLoadTable(app, config.pre_load_table[iLoop]);
+    }
+    
+    var retryCount = 0;
+    var createInstance = setInterval(function()
+    {
+        var isLoaded = true;
+        for (var iLoop = 0; iLoop < preLoadTableLen; ++iLoop)
+        {
+            if (undefined == app.get(config.pre_load_table[iLoop]))
+            {
+                isLoaded = false;
+                break;
+            }
+        }
+        
+        if (true == isLoaded)
+        {
+            createInstanceCompanyTable(app);
+            clearInterval(createInstance);
+            callback();
+        }
+        
+        // @@@ 테이블이 없으면 무한루프인데... 서버 종료시켜야겠다.
+        
+    }, 100);
 };
 
-var loadServerConfig = function(app, callback)
+function preLoadTable(app, collectionName)
 {
-    var serverConfig = app.get("database").db.collection("config");
-    if (!serverConfig) {
-        console.log("[LSH] 심각한 오류 : config 테이블이 없음");
-        callback(null);
+    console.log("try preload : %s", collectionName);
+    
+    var table = routerUtil.getCollection(app, collectionName);
+    if (!table) {
+        console.error("[LSH][loapreLoadTabledTable] not found collection ( %s )", collectionName);
         return;
     }
     
-    serverConfig.find().toArray(function(err, docs) 
+    table.find().toArray(function(err, docs) 
     {
         if (err) {
-            var error = {"code":constantModule.Err_Common_CollectionRead, "message":"config 데이터 베이스 쿼리 실패"};
-            res.send(utilModule.makeResponse(req, null, error));
-            callback(null);
+            console.error("[LSH][preLoadTable] failed find collection ( %s )", collectionName);
             return;
         }
 
         if (0 == docs.length) {
-            var error = {"code":constantModule.Err_Common_EmptyCollection, "message":"config 비어있는 컬렉션"};
-            res.send(utilModule.makeResponse(req, null, error));
-            callback(null);
+            console.error("[LSH][preLoadTable] empty collection ( %s )", collectionName);
             return;
         }
         
-        callback(docs[0]);
+        app.set(collectionName, docs);
     });
-};
+}
 
-var setCompanyForMiningTable = function(app)
+var createInstanceCompanyTable = function(app)
 {
-    var oracleCompanyAM = app.get("database").db.collection("oracle_company_am");
-    if (!oracleCompanyAM) {
-        console.log("[LSH] 심각한 오류 : oracle_company_am 테이블이 없음");
+    var instanceMiningActiveCompany = routerUtil.getCollection(app, "instance_mining_active_company");
+    if (!instanceMiningActiveCompany) {
+        console.error("[LSH][createInstanceCompanyTable] not found collection ( %s )", "instance_mining_active_company");
         return;
     }
     
-    var companyForMining = app.get("database").db.collection("company_for_mining");
-    if (!companyForMining) {
-        console.log("[LSH] 심각한 오류 : company_for_mining 테이블이 없음");
-        return;
-    }
+    var globalConfig = app.get("global_config");
+    var miningActiveCompanyNPC = app.get("mining_active_company_npc");
+    var npcLen = miningActiveCompanyNPC.length;
     
-    loadServerConfig(app, function(serverConfig)
-    {
-        oracleCompanyAM.find().toArray(function(err, docs) 
-        {
-            if (err) {
-                console.log("[LSH] 심각한 오류 : oracle_company_am find가 안됨");
-                return;
-            }
-
-            if (0 == docs.length) {
-                console.log("[LSH] 심각한 오류 : oracle_company_am 비어있음");
-                return;
-            }
-
-            for (var iLoop = 0; iLoop < docs.length; iLoop++) {
-                processCompanyForMiningTable(companyForMining, serverConfig, docs[iLoop]);
-            }
-        });
-    });
+    for (var iLoop = 0; iLoop < npcLen; iLoop++) {
+        var npcItem = miningActiveCompanyNPC[iLoop];
+        processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActiveCompany);
+    }
 };
 
-var processCompanyForMiningTable = function(companyForMining, serverConfig, item)
+function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActiveCompany)
 {
-    /*
-    마이닝 회사 테이블 업데이트 알고리즘
+        /*
+            인스턴스 회사 테이블 업데이트 아이디어
 
-    instance_id로 companyForMining테이블을 find한다.
+            instance_id로 instanceMiningActiveCompany 테이블을 find한다.
 
-    있을때 -> docs의 is_use가 yes면 업데이트한다.
-                           no면 제거한다.
-    없을때 -> docs의 is_use가 yes면 추가한다.
-                           no면 무시한다.
-    */
-    companyForMining.findOne({"instance_id": item.instance_id}, function(err, bots)
+            있을때 -> is_use가 yes면 업데이트한다.
+                             no면 제거한다.
+            없을때 -> is_use가 yes면 추가한다.
+                             no면 무시한다.
+        */
+    
+    instanceMiningActiveCompany.findOne({"instance_id": npcItem.instance_id}, function(err, instance)
     {
         if (err) {
-            console.log("[LSH] 심각한 오류 : company_for_mining find가 안됨(%s)", item.instance_id);
+            console.error("[LSH][createInstanceCompanyTable] failed find collection ( instanceId : %s )", npcItem.instance_id);
             return;
         }
-        
-        if (bots) {
-            if (1 == item.is_use) {
-                var basicCompanyInfo = { $set: {
-                    "resource_id" : item.resource_id
-                    , "name_strid" : item.name_strid
-                    , "emblem_image" : item.emblem_image
-                    , "efficiency_lv" : item.efficiency_lv
-                    , "supply_count" : serverConfig.basic_active_mining_supply
+
+        if (instance) {
+            if (1 == npcItem.is_use) {
+                var npcCompanyInfo = { $set: {
+                    "instance_id" : npcItem.instance_id
+                    , "unit_id" : npcItem.unit_id
+                    , "name_str_id" : npcItem.name_str_id
+                    , "emblem_image" : npcItem.emblem_image
+                    , "efficiency_lv" : npcItem.efficiency_lv
+                    , "supply_count" : globalConfig[0].basic_active_mining_supply
                     , "is_basic_company" : true
                 }};
 
-                companyForMining.updateOne({ instance_id: item.instance_id }, basicCompanyInfo, function(err)
+                instanceMiningActiveCompany.updateOne({"instance_id": npcItem.instance_id}, npcCompanyInfo, function(err)
                 {
                     if (err) {
-                        console.log("[LSH] 심각한 오류 : company_for_mining update 안됨(%s)", item.instance_id);
+                        console.log("[LSH][createInstanceCompanyTable] failed DB update ( instanceId : %s )", npcItem.instance_id);
                     }
                 });
             }
             else {
-                companyForMining.delete({ instance_id: item.instance_id }, function (err) {
-
+                instanceMiningActiveCompany.delete({"instance_id": npcItem.instance_id}, function (err)
+                {
                     if (err) {
-                        console.log("[LSH] 심각한 오류 : company_for_mining delete 안됨(%s)", item.instance_id);
+                        console.log("[LSH][createInstanceCompanyTable] failed DB delete ( instanceId : %s )", npcItem.instance_id);
                     }
                 });
             }
         }
         else {
-            if (1 == item.is_use) {
-                var basicCompanyInfo = {
-                    "instance_id" : item.instance_id
-                    , "resource_id" : item.resource_id
-                    , "name_strid" : item.name_strid
-                    , "emblem_image" : item.emblem_image
-                    , "efficiency_lv" : item.efficiency_lv
-                    , "supply_count" : serverConfig.basic_active_mining_supply
+            if (1 == npcItem.is_use) {
+                var npcCompanyInfo = {
+                    "instance_id" : npcItem.instance_id
+                    , "unit_id" : npcItem.unit_id
+                    , "name_str_id" : npcItem.name_str_id
+                    , "emblem_image" : npcItem.emblem_image
+                    , "efficiency_lv" : npcItem.efficiency_lv
+                    , "supply_count" : globalConfig[0].basic_active_mining_supply
                     , "is_basic_company" : true
                 };
-                
-                companyForMining.insertOne(basicCompanyInfo, function(err, result) 
+
+                instanceMiningActiveCompany.insertOne(npcCompanyInfo, function(err, result) 
                 {
                     if (err) {
-                        console.log("[LSH] 심각한 오류 : company_for_mining insert 안됨(%s)", item.instance_id);
-                        return;
+                        console.log("[LSH][createInstanceCompanyTable] failed DB insert ( instanceId : %s )", item.instance_id);
                     }
                 });
             }
@@ -139,4 +152,4 @@ var processCompanyForMiningTable = function(companyForMining, serverConfig, item
     });
 }
 
-module.exports.Initialization = Initialization;
+module.exports.initialization = initialization;
