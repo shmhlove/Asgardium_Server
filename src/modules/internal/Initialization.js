@@ -1,3 +1,4 @@
+var async = require("async");
 var config = require("../Config");
 var crypto = require("crypto");
 var routerUtil = require("../router/RouterUtil");
@@ -5,45 +6,59 @@ var routerUtil = require("../router/RouterUtil");
 var initialization = function(app, callback)
 {
     console.log("[LSH] called initialization");
+
+// 루프 중 collectionName을 어떻게 처리해야할 지 모르겠다....
+//    // 테이블 프리로드 명령을 배열에 모아서 Parallel 처리한다.
+//    var preLoadFunctions = [];
+//    var preLoadTableLen = config.pre_load_table.length;
+//    for (var iLoop = 0; iLoop < preLoadTableLen; ++iLoop)
+//    {
+//        var collectionName = config.pre_load_table[iLoop];
+//        
+//        preLoadFunctions.push(function(callback)
+//        {
+//            preLoadTable(app, collectionName, function()
+//            {
+//                callback(null);
+//            });
+//        });
+//    }
+//    
+//    async.parallel(
+//        preLoadFunctions,
+//        function (err, results) {
+//            createInstanceCompanyTable(app);
+//        }
+//    );
     
+    var iLoadCount = 0;
     var preLoadTableLen = config.pre_load_table.length;
     for (var iLoop = 0; iLoop < preLoadTableLen; ++iLoop)
     {
-        preLoadTable(app, config.pre_load_table[iLoop]);
+        preLoadTable(app, config.pre_load_table[iLoop], function(isSucceed, collectionName)
+        {
+            ++iLoadCount;
+        });
     }
     
-    var retryCount = 0;
-    var createInstance = setInterval(function()
-    {
-        var isLoaded = true;
-        for (var iLoop = 0; iLoop < preLoadTableLen; ++iLoop)
-        {
-            if (undefined == app.get(config.pre_load_table[iLoop]))
-            {
-                isLoaded = false;
-                break;
-            }
+    async.forever(
+        function(next) {
+            next(iLoadCount >= preLoadTableLen);
+        },
+        function(err) {
+            createInstanceCompanyTable(app, callback);
         }
-        
-        if (true == isLoaded)
-        {
-            createInstanceCompanyTable(app);
-            clearInterval(createInstance);
-            callback();
-        }
-        
-        // @@@ 테이블이 없으면 무한루프인데... 서버 종료시켜야겠다.
-        
-    }, 100);
+    );
 };
 
-function preLoadTable(app, collectionName)
+function preLoadTable(app, collectionName, callback)
 {
     console.log("try preload : %s", collectionName);
     
     var table = routerUtil.getCollection(app, collectionName);
     if (!table) {
         console.error("[LSH][loapreLoadTabledTable] not found collection ( %s )", collectionName);
+        callback(false, collectionName);
         return;
     }
     
@@ -51,19 +66,22 @@ function preLoadTable(app, collectionName)
     {
         if (err) {
             console.error("[LSH][preLoadTable] failed find collection ( %s )", collectionName);
+            callback(false, collectionName);
             return;
         }
 
         if (0 == docs.length) {
             console.error("[LSH][preLoadTable] empty collection ( %s )", collectionName);
+            callback(false, collectionName);
             return;
         }
         
         app.set(collectionName, docs);
+        callback(true, collectionName);
     });
 }
 
-var createInstanceCompanyTable = function(app)
+var createInstanceCompanyTable = function(app, callback)
 {
     var instanceMiningActiveCompany = routerUtil.getCollection(app, "instance_mining_active_company");
     if (!instanceMiningActiveCompany) {
@@ -71,17 +89,30 @@ var createInstanceCompanyTable = function(app)
         return;
     }
     
+    var iLoadCount = 0;
     var globalConfig = app.get("global_config");
     var miningActiveCompanyNPC = app.get("mining_active_company_npc");
     var npcLen = miningActiveCompanyNPC.length;
     
     for (var iLoop = 0; iLoop < npcLen; iLoop++) {
         var npcItem = miningActiveCompanyNPC[iLoop];
-        processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActiveCompany);
+        processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActiveCompany, function(isSucceed)
+        {
+            ++iLoadCount;
+        });
     }
+    
+    async.forever(
+        function(next) {
+            next(iLoadCount >= npcLen);
+        },
+        function(err) {
+            callback();
+        }
+    );
 };
 
-function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActiveCompany)
+function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActiveCompany, callback)
 {
         /*
             인스턴스 회사 테이블 업데이트 아이디어
@@ -98,6 +129,7 @@ function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActive
     {
         if (err) {
             console.error("[LSH][createInstanceCompanyTable] failed find collection ( instanceId : %s )", npcItem.instance_id);
+            callback(false);
             return;
         }
 
@@ -117,6 +149,10 @@ function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActive
                 {
                     if (err) {
                         console.log("[LSH][createInstanceCompanyTable] failed DB update ( instanceId : %s )", npcItem.instance_id);
+                        callback(false);
+                    }
+                    else {
+                        callback(true);
                     }
                 });
             }
@@ -125,6 +161,10 @@ function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActive
                 {
                     if (err) {
                         console.log("[LSH][createInstanceCompanyTable] failed DB delete ( instanceId : %s )", npcItem.instance_id);
+                        callback(false);
+                    }
+                    else {
+                        callback(true);
                     }
                 });
             }
@@ -145,6 +185,10 @@ function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActive
                 {
                     if (err) {
                         console.log("[LSH][createInstanceCompanyTable] failed DB insert ( instanceId : %s )", item.instance_id);
+                        callback(false);
+                    }
+                    else {
+                        callback(true);
                     }
                 });
             }
