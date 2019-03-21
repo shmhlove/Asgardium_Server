@@ -71,13 +71,13 @@ if (undefined != lsof.split(" ")[37])
 }
 
 // HTTP 웹서버 시작
-var server = http.createServer(expressApp).listen(expressApp.get("port"), function()
+http.createServer(expressApp).listen(expressApp.get("port"), function()
 {
     console.log("[LSH] Start Express HTTP Server");
 });
 
 // HTTPS 웹서버 시작
-https.createServer(options, expressApp).listen(config.server_port_for_https, function()
+var server = https.createServer(options, expressApp).listen(config.server_port_for_https, function()
 {
     console.log("[LSH] Start Express HTTPS Server");
     
