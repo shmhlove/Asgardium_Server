@@ -1,13 +1,13 @@
 /*
 * 테스트
--> mac : sudo mongod --dbpath /data/Asgardium
--> win : mongod --dbpath "C:\Users\HoYaNoteBook\AppData\Local\MongoDB\Asgardium"
+-> mac DB : sudo mongod --dbpath /data/Asgardium
+-> win DB : mongod --dbpath "C:\Users\HoYaNoteBook\AppData\Local\MongoDB\Asgardium"
 -> local : https://localhost:3001/process/test
 -> aws : https://13.124.43.70:3001/process/test
 
 - 기타정보
-    : jsonwebtoken: JSON Web Token 을 손쉽게 생성하고, 또 검증도 해줍니다.
-    : morgan: Express 서버에서 발생하는 이벤트들을 기록해주는 미들웨어입니다
+    : jsonwebtoken: JSON Web Token 을 손쉽게 생성하고, 또 검증도 해줌
+    : morgan: Express 서버에서 발생하는 이벤트들을 기록해주는 미들웨어
 */
 
 console.log("Start Asgardium Server");
@@ -18,7 +18,7 @@ var expressStatic = require("serve-static");
 var expressBodyParser = require("body-parser");
 
 // 3rd party modules : Utility
-var http = require("http");
+//var http = require("http");
 var https = require("https");
 var path = require("path");
 var shell = require("shelljs");
@@ -44,7 +44,7 @@ var options = {
 };
 
 // 포트 및 호스트 설정
-expressApp.set("port", process.env.PORT || config.server_port);
+expressApp.set("port", process.env.PORT || config.server_port_for_https);
 expressApp.set("host", config.server_host);
 
 // body파서 등록(POST방식에서 body를 쉽게 읽을 수 있도록)
@@ -70,14 +70,8 @@ if (undefined != lsof.split(" ")[37])
     shell.exec("kill -9 " + lsof.split(" ")[37]);
 }
 
-// HTTP 웹서버 시작
-http.createServer(expressApp).listen(expressApp.get("port"), function()
-{
-    console.log("[LSH] Start Express HTTP Server");
-});
-
 // HTTPS 웹서버 시작
-var server = https.createServer(options, expressApp).listen(config.server_port_for_https, function()
+var webServer = https.createServer(options, expressApp).listen(expressApp.get("port"), function()
 {
     console.log("[LSH] Start Express HTTPS Server");
     
@@ -101,8 +95,8 @@ expressApp.use(cors());
 //var socketio = webSocket(server);
 //socketio.of("namespace").on("connection", function(socket)
 
-var socketio = webSocket.listen(server);
-socketio.sockets.on("connection", function(socket)
+var io = webSocket.listen(webServer);
+io.sockets.on("connection", function(socket)
 {
     // socket 객체에 클라이언트의 Host와 Port 정보를 속성으로 추가
     console.log("[LSH] connection to : ", socket.id, "->", socket.request.connection._peername);
@@ -115,10 +109,10 @@ socketio.sockets.on("connection", function(socket)
         
         // 이 클라이언트에게 메시지 보내기
         //socket.emit('message', message);
-        socketio.sockets.connected[socket.id].emit('message', message);
+        io.sockets.connected[socket.id].emit('message', message);
         
         // 모든 클라이언트에게 메시지 보내기
-        //socketio.sockets.emit('message', message);
+        //io.sockets.emit('message', message);
         
         // 나를 제외한 모든 클라이언트에게 메시지 보내기
         //socket.broadcast.emit('message', message);
@@ -126,7 +120,7 @@ socketio.sockets.on("connection", function(socket)
         // 특정 클라이언트에게만 메시지 보내기
         //  - 소켓 로그인 API 하나 만들어서 
         //    소켓 접속 후 클라에서 로그인 정보와 소켓id를 보내면 서버에서 맵형태로 관리
-        //  - 특정 클라이언트에게만 메시지 보낼때는 로그인 정보로 소켓id를 조회해서 socketio.sockets.connected[소켓id].emit("key", "value"); 
+        //  - 특정 클라이언트에게만 메시지 보낼때는 로그인 정보로 소켓id를 조회해서 io.sockets.connected[소켓id].emit("key", "value"); 
         
         // 특정 그룹에게만 메시지 보내기
     });
