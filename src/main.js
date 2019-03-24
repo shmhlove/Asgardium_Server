@@ -43,7 +43,7 @@ var options = {
 };
 
 // 포트 및 호스트 설정
-expressApp.set("port", process.env.PORT || config.server_port);
+expressApp.set("port", config.server_port);
 expressApp.set("host", config.server_host);
 
 // body파서 등록(POST방식에서 body를 쉽게 읽을 수 있도록)
@@ -63,7 +63,7 @@ routerLoader.init(expressApp, express.Router());
 // sudo lsof -i :"포트 번호"
 // sudo kill -9 "프로세스 번호"
 var lsof = shell.exec("lsof -i :" + expressApp.get("port")).stdout;
-if (undefined != lsof.split(" ")[37])
+if ((undefined != lsof) && (undefined != lsof.split(" ")[37]))
 {
     console.log("PID : " + lsof.split(" ")[37]);
     shell.exec("kill -9 " + lsof.split(" ")[37]);
@@ -80,7 +80,8 @@ var webServer = https.createServer(options, expressApp).listen(expressApp.get("p
         if (database) {
             initialization.initialization(expressApp, function()
             {
-                console.log("[LSH] Ready Express HTTPS Server");
+                console.log("[LSH] Ready Express HTTPS Server : %s:%s", 
+                            expressApp.get("host"), expressApp.get("port"));
             });
             clearInterval(initServer);
         }
