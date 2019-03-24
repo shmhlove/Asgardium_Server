@@ -18,7 +18,6 @@ var expressStatic = require("serve-static");
 var expressBodyParser = require("body-parser");
 
 // 3rd party modules : Utility
-//var http = require("http");
 var https = require("https");
 var path = require("path");
 var shell = require("shelljs");
