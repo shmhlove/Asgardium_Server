@@ -43,7 +43,7 @@ var options = {
 };
 
 // 포트 및 호스트 설정
-expressApp.set("port", process.env.PORT || config.server_port_for_https);
+expressApp.set("port", process.env.PORT || config.server_port);
 expressApp.set("host", config.server_host);
 
 // body파서 등록(POST방식에서 body를 쉽게 읽을 수 있도록)
