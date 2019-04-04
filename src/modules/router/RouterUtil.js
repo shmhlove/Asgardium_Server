@@ -74,7 +74,7 @@ var makeJWT = function()
     ///////////////////////////////////////////////////////////////
     const payload = {
         // 등록된 클레임 : 이미 정해져있는 key
-        "iss": "velopert.com",  // 토큰 발급자
+        "iss": "MangoNight.Client.com",// 토큰 발급자
         "sub": "MangoNight",    // 토큰 제목
         "aud": "Asgardium",     // 토큰 대상자
         "exp": "1485270000000", // 토큰의 만료시간(이 시간이 지난후 토큰은 유효하지 않음)
@@ -106,7 +106,7 @@ var makeJWT = function()
           secret)
     */
     ///////////////////////////////////////////////////////////////
-    const signature = crypto.createHmac('sha256', 'secret')
+    const signature = crypto.createHmac('sha256', 'SeCrEtKeYfOrHaShInG')
                  .update(encodedHeader + '.' + encodedPayload)
                  .digest('base64')
                  .replace('=', '');
