@@ -5,7 +5,7 @@ var test = function(req, res)
 {
     util.requestLog(req);
     
-    res.send({"version" : "1.0.0"});
+    res.send(util.makeResponse(req, {"version" : "1.0.0"}, null));
 };
 
 var test_use_mining_power = function(req, res)

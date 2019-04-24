@@ -1,5 +1,8 @@
 /*
-* 테스트
+- AWS 접속
+    : ssh -i "MangoNight.pem" ubuntu@13.124.43.70
+
+- 테스트
 -> mac DB : sudo mongod --dbpath /data/Asgardium
 -> win DB : mongod --dbpath "C:\Users\HoYaNoteBook\AppData\Local\MongoDB\Asgardium"
 -> local : https://localhost:3001/process/test
@@ -38,8 +41,8 @@ var expressApp = express();
 
 // HTTPS용 인증서
 var options = {  
-    key: fs.readFileSync(path.join(__dirname, "keys", "key.pem")),
-    cert: fs.readFileSync(path.join(__dirname, "keys", "cert.pem"))
+    key: fs.readFileSync(path.join(__dirname, "keys", "HTTPS_key.pem")),
+    cert: fs.readFileSync(path.join(__dirname, "keys", "HTTPS_cert.pem"))
 };
 
 // 포트 및 호스트 설정
