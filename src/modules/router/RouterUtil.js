@@ -79,9 +79,9 @@ var checkCertificate = function(req, isSession)
     var serverSignature = crypto.createHmac('sha256', config["certificate"])
                                  .update(encodedHeader + '.' + encodedPayload)
                                  .digest('base64')
-                                 .replace('=', '')  // Remove any trailing '='s
-                                 .replace('+', '-') // 62nd char of encoding
-                                 .replace('/', '_');// 63rd char of encoding
+                                 .split('=').join('')  // Remove any trailing '='s
+                                 .split('+').join('-') // 62nd char of encoding
+                                 .split('/').join('_');// 63rd char of encoding
     
     if (clientSignature != serverSignature) {
         console.log("Clienet Signature : " + clientSignature);
@@ -117,9 +117,9 @@ var makeJWT = function()
     
     const encodedHeader = new Buffer(JSON.stringify(header))
                                 .toString('base64')
-                                .replace('=', '')   // Remove any trailing '='s
-                                .replace('+', '-')  // 62nd char of encoding
-                                .replace('/', '_'); // 63rd char of encoding
+                                 .split('=').join('')  // Remove any trailing '='s
+                                 .split('+').join('-') // 62nd char of encoding
+                                 .split('/').join('_');// 63rd char of encoding
     
     console.log('header: ', encodedHeader);
     
@@ -146,9 +146,9 @@ var makeJWT = function()
     
     const encodedPayload = new Buffer(JSON.stringify(payload))
                                 .toString('base64')
-                                .replace('=', '')   // Remove any trailing '='s
-                                .replace('+', '-')  // 62nd char of encoding
-                                .replace('/', '_'); // 63rd char of encoding
+                                 .split('=').join('')  // Remove any trailing '='s
+                                 .split('+').join('-') // 62nd char of encoding
+                                 .split('/').join('_');// 63rd char of encoding
     
     console.log('payload: ', encodedPayload);
     
@@ -165,10 +165,10 @@ var makeJWT = function()
     const signature = crypto.createHmac('sha256', 'SeCrEtKeYfOrHaShInG')
                  .update(encodedHeader + '.' + encodedPayload)
                  .digest('base64')
-                 .replace('=', '')
-                 .replace("+", "-")
-                 .replace("/", "_");
-
+                 .split('=').join('')  // Remove any trailing '='s
+                 .split('+').join('-') // 62nd char of encoding
+                 .split('/').join('_');// 63rd char of encoding
+    
     console.log('signature: ', signature);
     
     // JWT 합체
