@@ -6,7 +6,7 @@ var test = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req, true)) {
+    if (false == util.checkCertificate(req, false)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeResponse(req, null, error));
         return;

@@ -6,7 +6,7 @@ var config = require("../Config");
 var requestLog = function(req)
 {
     console.log("[LSH] %s %s 요청", req.method, req.url);
-    console.dir(req.body);
+    //console.dir(req.body);
 }
 
 var loadCollectionAtExpressApp = function(req, app, collectionName, callback)
@@ -63,8 +63,8 @@ var makeResponse = function(req, data, error)
         "error" : error
     };
     
-    console.log("[LSH] %s %s 응답", req.method, req.url);
-    console.log(JSON.stringify(result));
+    console.log("[LSH] %s %s 응답(%s)", req.method, req.url, result["result"] ? "succeed" : "failed");
+    //console.log(JSON.stringify(result));
     
     return result;
 }
@@ -84,6 +84,8 @@ var checkCertificate = function(req, isSession)
                                  .replace('/', '_');// 63rd char of encoding
     
     if (clientSignature != serverSignature) {
+        console.log("Clienet Signature : " + clientSignature);
+        console.log("Server Signature : " + serverSignature);
         return false;
     }
     
