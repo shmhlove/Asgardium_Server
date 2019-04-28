@@ -9,11 +9,23 @@ var requestLog = function(req)
     console.dir(req.body);
 }
 
-var loadCollection = function(req, app, collectionName, callback)
+var loadCollectionAtExpressApp = function(req, app, collectionName, callback)
+{
+    var table = app.get(collectionName);
+    if (table) {
+        callback(makeResponse(req, table, null));
+    }
+    else {
+        var error = makeError(constant.Err_Common_FailedGetCollection, "Not found collection in ExpressApp( " + collectionName + " )");
+        callback(makeResponse(req, null, error));
+    }
+}
+
+var loadCollectionAtDB = function(req, app, collectionName, callback)
 {
     var table = getCollection(app, collectionName);
     if (!table) {
-        var error = makeError(constant.Err_Common_NotFoundCollection, "Not found collection ( " + collectionName + " )");
+        var error = makeError(constant.Err_Common_FailedGetCollection, "Not found collection ( " + collectionName + " )");
         callback(makeResponse(req, null, error));
     }
     
@@ -164,7 +176,8 @@ var makeJWT = function()
 
 module.exports.requestLog = requestLog;
 module.exports.getCollection = getCollection;
-module.exports.loadCollection = loadCollection;
+module.exports.loadCollectionAtDB = loadCollectionAtDB;
+module.exports.loadCollectionAtExpressApp = loadCollectionAtExpressApp;
 module.exports.makeError = makeError;
 module.exports.makeResponse = makeResponse;
 module.exports.makeJWT = makeJWT;

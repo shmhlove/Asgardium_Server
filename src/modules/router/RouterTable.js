@@ -5,76 +5,105 @@ var global_config = function(req, res)
 {
     util.requestLog(req);
     
-    var table = req.app.get("global_config");
-    if(table) {
-        res.send(util.makeResponse(req, table[0], null));
-    }
-    else {
-        var error = util.makeError(constant.Err_Common_NotFoundCollection, "Not found collection in ExpressApp( global_config )");
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeResponse(req, null, error));
+        return;
     }
+    
+    // ExpressApp 메모리에 올라온 테이블 릴레이
+    util.loadCollectionAtExpressApp(req, req.app, "global_config", function(response)
+    {
+        res.send(response);
+    });
 }
 
 var global_unit_data = function(req, res)
 {
     util.requestLog(req);
     
-    var table = req.app.get("global_unit_data");
-    if(table) {
-        res.send(util.makeResponse(req, table, null));
-    }
-    else {
-        var error = util.makeError(constant.Err_Common_NotFoundCollection, "Not found collection in ExpressApp( global_unit_data )");
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeResponse(req, null, error));
+        return;
     }
+    
+    // ExpressApp 메모리에 올라온 테이블 릴레이
+    util.loadCollectionAtExpressApp(req, req.app, "global_unit_data", function(response)
+    {
+        res.send(response);
+    });
 }
 
 var mining_active_company_npc = function(req, res)
 {
     util.requestLog(req);
     
-    var table = req.app.get("mining_active_company_npc");
-    if(table) {
-        res.send(util.makeResponse(req, table, null));
-    }
-    else {
-        var error = util.makeError(constant.Err_Common_NotFoundCollection, "Not found collection in ExpressApp( mining_active_company_npc )");
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeResponse(req, null, error));
+        return;
     }
+    
+    // ExpressApp 메모리에 올라온 테이블 릴레이
+    util.loadCollectionAtExpressApp(req, req.app, "mining_active_company_npc", function(response)
+    {
+        res.send(response);
+    });
 }
 
 var mining_active_quantity = function(req, res)
 {
     util.requestLog(req);
     
-    var table = req.app.get("mining_active_quantity");
-    if(table) {
-        res.send(util.makeResponse(req, table, null));
-    }
-    else {
-        var error = util.makeError(constant.Err_Common_NotFoundCollection, "Not found collection in ExpressApp( mining_active_quantity )");
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeResponse(req, null, error));
+        return;
     }
+    
+    // ExpressApp 메모리에 올라온 테이블 릴레이
+    util.loadCollectionAtExpressApp(req, req.app, "mining_active_quantity", function(response)
+    {
+        res.send(response);
+    });
 }
 
 var mining_active_supply = function(req, res)
 {
     util.requestLog(req);
     
-    var table = req.app.get("mining_active_supply");
-    if(table) {
-        res.send(util.makeResponse(req, table, null));
-    }
-    else {
-        var error = util.makeError(constant.Err_Common_NotFoundCollection, "Not found collection in ExpressApp( mining_active_supply )");
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeResponse(req, null, error));
+        return;
     }
+    
+    // ExpressApp 메모리에 올라온 테이블 릴레이
+    util.loadCollectionAtExpressApp(req, req.app, "mining_active_supply", function(response)
+    {
+        res.send(response);
+    });
 }
 
 var instance_users = function(req, res)
 {
     util.requestLog(req);
-    var response = util.loadCollection(req, req.app, "instance_users", function(response)
+    
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        res.send(util.makeResponse(req, null, error));
+        return;
+    }
+    
+    // DB에서 테이블 로드
+    var response = util.loadCollectionAtDB(req, req.app, "instance_users", function(response)
     {
         res.send(response);
     });
@@ -83,7 +112,16 @@ var instance_users = function(req, res)
 var instance_mining_active_company = function(req, res)
 {
     util.requestLog(req);
-    var response = util.loadCollection(req, req.app, "instance_mining_active_company", function(response)
+    
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        res.send(util.makeResponse(req, null, error));
+        return;
+    }
+    
+    // DB에서 테이블 로드
+    var response = util.loadCollectionAtDB(req, req.app, "instance_mining_active_company", function(response)
     {
         res.send(response);
     });

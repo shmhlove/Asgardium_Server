@@ -5,18 +5,26 @@ var test = function(req, res)
 {
     util.requestLog(req);
     
+    // 헤더 유효성 체크
     if (false == util.checkCertificate(req, true)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeResponse(req, null, error));
+        return;
     }
-    else {
-        res.send(util.makeResponse(req, {"version" : "1.0.0"}, null));
-    }
+    
+    res.send(util.makeResponse(req, {"version" : "1.0.0"}, null));
 };
 
 var test_use_mining_power = function(req, res)
 {
     util.requestLog(req);
+    
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, true)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        res.send(util.makeResponse(req, null, error));
+        return;
+    }
     
     // 파라미터 유효성 체크
     var userId = req.body.user_id;
@@ -67,6 +75,13 @@ var test_use_mining_power = function(req, res)
 var test_reset_mining_power = function(req, res)
 {
     util.requestLog(req);
+    
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, true)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        res.send(util.makeResponse(req, null, error));
+        return;
+    }
     
     // 파라미터 유효성 체크
     var userId = req.body.user_id;

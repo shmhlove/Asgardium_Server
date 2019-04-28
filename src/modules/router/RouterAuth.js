@@ -10,6 +10,13 @@ var signup = function(req, res)
     var userName = req.body.name;
     var userPass = req.body.password;
     
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        res.send(util.makeResponse(req, null, error));
+        return;
+    }
+    
     // 파라미터 유효성 체크
     if (!userEmail || !userName || !userPass) {
         var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
@@ -68,6 +75,13 @@ var signin = function(req, res)
     
     var userEmail = req.body.email;
     var userPass = req.body.password;
+    
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        res.send(util.makeResponse(req, null, error));
+        return;
+    }
     
     // 파라미터 유효성 체크 : 에러발생
     if (!userEmail || !userPass) {
