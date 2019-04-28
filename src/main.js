@@ -48,6 +48,7 @@ var options = {
 // 포트 및 호스트 설정
 expressApp.set("port", config.server_port);
 expressApp.set("host", config.server_host);
+expressApp.set("certificate", options);
 
 // body파서 등록(POST방식에서 body를 쉽게 읽을 수 있도록)
 expressApp.use(expressBodyParser.urlencoded({extended: false}));

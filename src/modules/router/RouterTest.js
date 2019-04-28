@@ -5,7 +5,13 @@ var test = function(req, res)
 {
     util.requestLog(req);
     
-    res.send(util.makeResponse(req, {"version" : "1.0.0"}, null));
+    if (false == util.checkCertificate(req, true)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        res.send(util.makeResponse(req, null, error));
+    }
+    else {
+        res.send(util.makeResponse(req, {"version" : "1.0.0"}, null));
+    }
 };
 
 var test_use_mining_power = function(req, res)

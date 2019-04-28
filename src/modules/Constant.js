@@ -8,6 +8,7 @@ module.exports =
     Err_Common_InvalidResponseData:1005,
     Err_Common_JsonParse:1006,
     Err_Common_EmptyCollection:1007,
+    Err_Common_InvalidHeader:1008,
     
     Err_Auth_AlreadySignupUser:2001,
     Err_Auth_NoSignupUser:2002,

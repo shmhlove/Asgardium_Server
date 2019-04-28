@@ -1,4 +1,7 @@
 const crypto = require('crypto');
+var config = require("../Config");
+//var textEncoding = require('text-encoding');
+//var TextDecoder = textEncoding.TextDecoder;
 
 var requestLog = function(req)
 {
@@ -54,6 +57,41 @@ var makeResponse = function(req, data, error)
     return result;
 }
 
+var checkCertificate = function(req, isSession)
+{
+    var headers = req.headers.authorization.split(".");
+    var encodedHeader = headers["0"];
+    var encodedPayload = headers["1"];
+    var clientSignature = headers["2"];
+    
+    var serverSignature = crypto.createHmac('sha256', config["certificate"])
+                                 .update(encodedHeader + '.' + encodedPayload)
+                                 .digest('base64')
+                                 .replace('=', '')  // Remove any trailing '='s
+                                 .replace('+', '-') // 62nd char of encoding
+                                 .replace('/', '_');// 63rd char of encoding
+    
+    if (clientSignature != serverSignature) {
+        return false;
+    }
+    
+    if (isSession) {
+        
+        var userId = undefined;
+        var payload = JSON.parse(new Buffer(encodedPayload, 'base64').toString('utf-8'));
+        for (var key in payload) {
+            if ("access_token" == payload[key]["Key"]) {
+                userId = payload[key]["Value"];
+                break;
+            }
+        }
+        
+        return undefined != userId;
+    }
+    
+    return true;
+}
+
 var makeJWT = function()
 {
     // 헤더헤더
@@ -65,7 +103,9 @@ var makeJWT = function()
     
     const encodedHeader = new Buffer(JSON.stringify(header))
                                 .toString('base64')
-                                .replace('=', '');
+                                .replace('=', '')   // Remove any trailing '='s
+                                .replace('+', '-')  // 62nd char of encoding
+                                .replace('/', '_'); // 63rd char of encoding
     
     console.log('header: ', encodedHeader);
     
@@ -92,7 +132,9 @@ var makeJWT = function()
     
     const encodedPayload = new Buffer(JSON.stringify(payload))
                                 .toString('base64')
-                                .replace('=', '');
+                                .replace('=', '')   // Remove any trailing '='s
+                                .replace('+', '-')  // 62nd char of encoding
+                                .replace('/', '_'); // 63rd char of encoding
     
     console.log('payload: ', encodedPayload);
     
@@ -109,7 +151,9 @@ var makeJWT = function()
     const signature = crypto.createHmac('sha256', 'SeCrEtKeYfOrHaShInG')
                  .update(encodedHeader + '.' + encodedPayload)
                  .digest('base64')
-                 .replace('=', '');
+                 .replace('=', '')
+                 .replace("+", "-")
+                 .replace("/", "_");
 
     console.log('signature: ', signature);
     
@@ -124,3 +168,4 @@ module.exports.loadCollection = loadCollection;
 module.exports.makeError = makeError;
 module.exports.makeResponse = makeResponse;
 module.exports.makeJWT = makeJWT;
+module.exports.checkCertificate = checkCertificate;
