@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 var config = require("../Config");
-//var textEncoding = require('text-encoding');
-//var TextDecoder = textEncoding.TextDecoder;
+var textEncoding = require('text-encoding');
+var textDecoder = textEncoding.TextDecoder;
 
 var requestLog = function(req)
 {
@@ -76,7 +76,14 @@ var checkCertificate = function(req, isSession)
     var encodedPayload = headers["1"];
     var clientSignature = headers["2"];
     
-    var serverSignature = crypto.createHmac('sha256', config["certificate"])
+    var certificate = req.app.get("certificate");
+    var certString = new textDecoder("utf-8").decode(certificate["cert"]);
+    
+    certString = certString.replace('-----BEGIN CERTIFICATE-----', '')
+                           .replace('-----END CERTIFICATE-----', '')
+                           .split('\n').join('');
+    
+    var serverSignature = crypto.createHmac('sha256', certString)
                                  .update(encodedHeader + '.' + encodedPayload)
                                  .digest('base64')
                                  .split('=').join('')  // Remove any trailing '='s
