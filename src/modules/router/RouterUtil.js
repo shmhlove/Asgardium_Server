@@ -94,8 +94,8 @@ var checkCertificate = function(req, isSession)
         var userId = undefined;
         var payload = JSON.parse(new Buffer(encodedPayload, 'base64').toString('utf-8'));
         for (var key in payload) {
-            if ("access_token" == payload[key]["Key"]) {
-                userId = payload[key]["Value"];
+            if ("access_token" == key) {
+                userId = payload[key];
                 break;
             }
         }
