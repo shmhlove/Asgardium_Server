@@ -69,7 +69,7 @@ var makeResponse = function(req, data, error)
     return result;
 }
 
-var checkCertificate = function(req, isSession)
+var checkCertificate = function(req, isCheckAccessToken)
 {
     var headers = req.headers.authorization.split(".");
     var encodedHeader = headers["0"];
@@ -83,12 +83,18 @@ var checkCertificate = function(req, isSession)
                            .replace('-----END CERTIFICATE-----', '')
                            .split('\n').join('');
     
+//    var supportHashes = crypto.getHashes();
+//    console.log("support Hashes\n" + supportHashes);
+//    
+//    var supportCiphers = crypto.getCiphers();
+//    console.log("support Ciphers\n" + supportCiphers);
+    
     var serverSignature = crypto.createHmac('sha256', certString)
-                                 .update(encodedHeader + '.' + encodedPayload)
-                                 .digest('base64')
-                                 .split('=').join('')  // Remove any trailing '='s
-                                 .split('+').join('-') // 62nd char of encoding
-                                 .split('/').join('_');// 63rd char of encoding
+                                .update(encodedHeader + '.' + encodedPayload)
+                                .digest('base64')
+                                .split('=').join('')  // Remove any trailing '='s
+                                .split('+').join('-') // 62nd char of encoding
+                                .split('/').join('_');// 63rd char of encoding
     
     if (clientSignature != serverSignature) {
         console.log("Clienet Signature : " + clientSignature);
@@ -96,7 +102,7 @@ var checkCertificate = function(req, isSession)
         return false;
     }
     
-    if (isSession) {
+    if (isCheckAccessToken) {
         
         var userId = undefined;
         var payload = JSON.parse(new Buffer(encodedPayload, 'base64').toString('utf-8'));
