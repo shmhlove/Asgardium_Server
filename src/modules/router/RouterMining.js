@@ -15,12 +15,24 @@ var subscribe_mining_active_info = function(req, res)
     
     // 유저id 얻기
     var userId = req.body.user_id;
-    console.log(userId);
     
-    // app에 컨테이너 얻기
     // 컨테이너에 유저id 추가
+    var subscribe_mining_active_info = req.app.get("subscribe_mining_active_info");
+    {
+        if (undefined == subscribe_mining_active_info) {
+            subscribe_mining_active_info = [userId];
+        }
+        else {
+            var index = subscribe_mining_active_info.indexOf(userId);
+            if (-1 == index) {
+                subscribe_mining_active_info.push(userId);
+            }
+        }
+
+        req.app.set("subscribe_mining_active_info", subscribe_mining_active_info);
+    }
     
-    res.send(util.makeResponse(req, util.makeResponse(req, {}, null)));
+    res.send(util.makeResponse(req, {"user_id":userId}, null));
 }
 
 // Mining Active 정보 정기구독 해제
@@ -37,12 +49,23 @@ var unsubscribe_mining_active_info = function(req, res)
     
     // 유저id 얻기
     var userId = req.body.user_id;
-    console.log(userId);
     
-    // app에 컨테이너 얻기
     // 컨테이너에 유저id 삭제
+    var subscribe_mining_active_info = req.app.get("subscribe_mining_active_info");
+    {
+        if (undefined == subscribe_mining_active_info) {
+            subscribe_mining_active_info = [];
+        }
+        else {
+            var index = subscribe_mining_active_info.indexOf(userId);
+            if (-1 < index) {
+                subscribe_mining_active_info.splice(index, 1);
+            }
+        }
+        req.app.set("subscribe_mining_active_info", subscribe_mining_active_info);
+    }
     
-    res.send(util.makeResponse(req, util.makeResponse(req, {}, null)));
+    res.send(util.makeResponse(req, {"user_id":userId}, null));
 }
 
 module.exports.subscribe_mining_active_info = subscribe_mining_active_info;
