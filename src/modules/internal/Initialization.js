@@ -53,7 +53,7 @@ var initialization = function(app, callback)
 
 function preLoadTable(app, collectionName, callback)
 {
-    console.log("try preload : %s", collectionName);
+    console.log("[LSH] try preload : %s", collectionName);
     
     var table = routerUtil.getCollection(app, collectionName);
     if (!table) {

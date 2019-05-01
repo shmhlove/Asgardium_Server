@@ -13,7 +13,7 @@
     : morgan: Express 서버에서 발생하는 이벤트들을 기록해주는 미들웨어
 */
 
-console.log("Start Asgardium Server");
+console.log("[LSH] Start Asgardium Server");
 
 // 3rd party modules : Express
 var express = require("express");
@@ -34,8 +34,6 @@ var routerLoader = require("./modules/router/RouterLoader");
 var database = require("./modules/database/Database");
 var routerUtil = require("./modules/router/RouterUtil");
 var initialization = require("./modules/internal/Initialization");
-
-routerUtil.makeJWT();
 
 var expressApp = express();
 
@@ -64,13 +62,22 @@ database.init(expressApp);
 routerLoader.init(expressApp, express.Router());
 
 // 실행중인 프로세스 종료
-// sudo lsof -i :"포트 번호"
-// sudo kill -9 "프로세스 번호"
-var lsof = shell.exec("lsof -i :" + expressApp.get("port")).stdout;
-if ((undefined != lsof) && (undefined != lsof.split(" ")[37]))
-{
-    console.log("PID : " + lsof.split(" ")[37]);
-    shell.exec("kill -9 " + lsof.split(" ")[37]);
+if (process.platform == "win32") {
+// 정상동작안함
+//    const nodeCmd = require('node-cmd');
+//    nodeCmd.get("netstat -nao | findstr " + expressApp.get("port"), (err, data, stderr) => {
+//        nodeCmd.get("taskkill /f /pid " + data[4], (err, data, stderr)=>{});
+//    });
+}
+else {
+    // sudo lsof -i :"포트 번호"
+    // sudo kill -9 "프로세스 번호"
+    var lsof = shell.exec("lsof -i :" + expressApp.get("port")).stdout;
+    if ((undefined != lsof) && (undefined != lsof.split(" ")[37]))
+    {
+        console.log("PID : " + lsof.split(" ")[37]);
+        shell.exec("kill -9 " + lsof.split(" ")[37]);
+    }
 }
 
 // HTTPS 웹서버 시작
