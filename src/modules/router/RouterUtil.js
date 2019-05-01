@@ -81,7 +81,9 @@ var checkCertificate = function(req, isCheckAccessToken)
     
     certString = certString.replace('-----BEGIN CERTIFICATE-----', '')
                            .replace('-----END CERTIFICATE-----', '')
-                           .split('\n').join('');
+                           .split('\r\n').join('')      // Windows 계열              
+                           .split('\n').join('');       // Linux, Unix 계열
+                           // CR(\r\n) : 0x0D (13 decimal), LF(\n) : 0x0A (10 decimal)
     
 //    var supportHashes = crypto.getHashes();
 //    console.log("support Hashes\n" + supportHashes);
