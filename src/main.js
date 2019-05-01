@@ -63,9 +63,9 @@ routerLoader.init(expressApp, express.Router());
 
 // 실행중인 프로세스 종료
 if (process.platform == "win32") {
-// 정상동작안함
-//    const nodeCmd = require('node-cmd');
-//    nodeCmd.get("netstat -nao | findstr " + expressApp.get("port"), (err, data, stderr) => {
+// 정상동작안함(수동으로 정상동작함)
+//    const cmd = require('child_process');
+//    cmd.get("netstat -nao | findstr " + expressApp.get("port"), (err, data, stderr) => {
 //        nodeCmd.get("taskkill /f /pid " + data[4], (err, data, stderr)=>{});
 //    });
 }

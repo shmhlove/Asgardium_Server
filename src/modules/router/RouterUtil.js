@@ -85,12 +85,6 @@ var checkCertificate = function(req, isCheckAccessToken)
                            .split('\n').join('');       // Linux, Unix 계열
                            // CR(\r\n) : 0x0D (13 decimal), LF(\n) : 0x0A (10 decimal)
     
-//    var supportHashes = crypto.getHashes();
-//    console.log("support Hashes\n" + supportHashes);
-//    
-//    var supportCiphers = crypto.getCiphers();
-//    console.log("support Ciphers\n" + supportCiphers);
-    
     var serverSignature = crypto.createHmac('sha256', certString)
                                 .update(encodedHeader + '.' + encodedPayload)
                                 .digest('base64')
