@@ -28,7 +28,7 @@ var subscribe_mining_active_info = function(req, res)
                 subscribe_mining_active_info.push(userId);
             }
         }
-
+        
         req.app.set("subscribe_mining_active_info", subscribe_mining_active_info);
     }
     

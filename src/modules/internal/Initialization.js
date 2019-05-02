@@ -1,7 +1,7 @@
 var async = require("async");
 var config = require("../Config");
 var crypto = require("crypto");
-var routerUtil = require("../router/RouterUtil");
+var routerUtil = require("../web_router/RouterUtil");
 
 var initialization = function(app, callback)
 {

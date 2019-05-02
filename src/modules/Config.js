@@ -27,7 +27,7 @@ module.exports =
         "mining_active_supply"
     ],
     
-    route_info:
+    web_route_info:
     [
         {file:"./RouterTest", path:"/process/test", method:"test", type:"get"}
         , {file:"./RouterTest", path:"/process/test", method:"test", type:"post"}
@@ -47,6 +47,12 @@ module.exports =
         , {file:"./RouterTable", path:"/table/mining_active_supply", method:"mining_active_supply", type:"get"}
         , {file:"./RouterTable", path:"/table/instance_users", method:"instance_users", type:"get"}
         , {file:"./RouterTable", path:"/table/instance_mining_active_company", method:"instance_mining_active_company", type:"get"}
+    ],
+    
+    socket_route_info:
+    [
+        {file:"./RouterCommon", event_name:"disconnect", method:"disconnect"}
+        , {file:"./RouterCommon", event_name:"test_message", method:"test_message"}
     ],
     
 //    facebook : 

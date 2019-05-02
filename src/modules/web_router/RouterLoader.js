@@ -3,12 +3,12 @@ var config = require("../Config");
 var router_loader = {};
 router_loader.init = function(app, router)
 {
-	console.log("[LSH] called router_loader.init(app, router)");
+	console.log("[LSH] called web_router_loader.init(app, router)");
     
-	var infoLen = config.route_info.length;
+	var infoLen = config.web_route_info.length;
 	for (var iLoop = 0; iLoop < infoLen; ++iLoop)
     {
-		var curRouter = config.route_info[iLoop];
+		var curRouter = config.web_route_info[iLoop];
 		var curModule = require(curRouter.file);
 		
 		if (curRouter.type == "get")
@@ -32,7 +32,7 @@ router_loader.init = function(app, router)
             router.route(curRouter.path).post(curModule[curRouter.method]);
 		}
 		
-		console.log("[LSH] added router module : %s %s", curRouter.type, curRouter.path);
+		console.log("[LSH] added web router module : %s %s", curRouter.type, curRouter.path);
 	}
     
     // 라우터 객체 등록

@@ -30,9 +30,9 @@ var fs = require('fs');
 
 // my modules
 var config = require("./modules/Config");
-var routerLoader = require("./modules/router/RouterLoader");
+var webRouterLoader = require("./modules/web_router/RouterLoader");
+var socketRouterLoader = require("./modules/socket_router/RouterLoader");
 var database = require("./modules/database/Database");
-var routerUtil = require("./modules/router/RouterUtil");
 var initialization = require("./modules/internal/Initialization");
 
 var expressApp = express();
@@ -59,7 +59,7 @@ expressApp.use(expressBodyParser.json());
 database.init(expressApp);
 
 // 라우터 등록
-routerLoader.init(expressApp, express.Router());
+webRouterLoader.init(expressApp, express.Router());
 
 // 실행중인 프로세스 종료
 if (process.platform == "win32") {
@@ -114,31 +114,5 @@ io.sockets.on("connection", function(socket)
     socket.remoteAddress = socket.request.connection._peername.address;
     socket.remotePort = socket.request.connection._peername.port;
     
-    socket.on("message", function(message)
-    {
-        console.log("[LSH] Recive Socket Data : " + message);
-        
-        // 이 클라이언트에게 메시지 보내기
-        //socket.emit('message', message);
-        io.sockets.connected[socket.id].emit('message', message);
-        
-        // 모든 클라이언트에게 메시지 보내기
-        //io.sockets.emit('message', message);
-        
-        // 나를 제외한 모든 클라이언트에게 메시지 보내기
-        //socket.broadcast.emit('message', message);
-        
-        // 특정 클라이언트에게만 메시지 보내기
-        //  - 소켓 로그인 API 하나 만들어서 
-        //    소켓 접속 후 클라에서 로그인 정보와 소켓id를 보내면 서버에서 맵형태로 관리
-        //  - 특정 클라이언트에게만 메시지 보낼때는 로그인 정보로 소켓id를 조회해서 io.sockets.connected[소켓id].emit("key", "value"); 
-        
-        // 특정 그룹에게만 메시지 보내기
-    });
-    
-    socket.on("disconnect", function(message)
-    {
-        console.log("disconnect");
-        console.dir(message);
-    });
+    socketRouterLoader.init(expressApp, socket);
 });
