@@ -65,6 +65,8 @@ webRouterLoader.init(expressApp, express.Router());
 
 // 실행중인 프로세스 종료
 if (process.platform == "win32") {
+    // netstat -nao | findstr "포트번호"
+    // taskkill /f /pid "프로세스ID"
     var netstat = shell.exec("netstat -nao | findstr " + expressApp.get("port")).stdout;
     var netstatSplit = netstat.replace(/\s{2,}/gi, ' ').split(' ');
     if (undefined != netstatSplit[5])
@@ -74,13 +76,14 @@ if (process.platform == "win32") {
     }
 }
 else {
-    // sudo lsof -i :"포트 번호"
-    // sudo kill -9 "프로세스 번호"
+    // sudo lsof -i :"포트번호"
+    // sudo kill -9 "프로세스ID"
     var lsof = shell.exec("lsof -i :" + expressApp.get("port")).stdout;
-    if ((undefined != lsof) && (undefined != lsof.split(" ")[37]))
+    var lsofSplit = lsof.replace(/\s{2,}/gi, ' ').split(' ');
+    if (undefined != lsofSplit[9])
     {
-        console.log("PID : " + lsof.split(" ")[37]);
-        shell.exec("kill -9 " + lsof.split(" ")[37]);
+        shell.exec("kill -9 " + lsofSplit[9]);
+        console.log("Kill Process PID " + lsofSplit[9]);
     }
 }
 
