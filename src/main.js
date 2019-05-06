@@ -2,15 +2,17 @@
 - AWS 접속
     : ssh -i "MangoNight.pem" ubuntu@13.124.43.70
 
+- DB 실행
+    -> mac DB : sudo mongod --dbpath /data/Asgardium
+    -> win DB : mongod --dbpath "C:\Users\HoYaNoteBook\AppData\Local\MongoDB\Asgardium"
+    
 - 테스트
--> mac DB : sudo mongod --dbpath /data/Asgardium
--> win DB : mongod --dbpath "C:\Users\HoYaNoteBook\AppData\Local\MongoDB\Asgardium"
--> local : https://localhost:3001/process/test
--> aws : https://13.124.43.70:3001/process/test
+    -> local : https://localhost:3001/process/test
+    -> aws : https://13.124.43.70:3001/process/test
 
 - 기타정보
     : jsonwebtoken: JSON Web Token 을 손쉽게 생성하고, 또 검증도 해줌
-    : morgan: Express 서버에서 발생하는 이벤트들을 기록해주는 미들웨어
+    : morgan: Express 서버에서 발생하는 이벤트들을 기록(로깅)해주는 미들웨어
 */
 
 console.log("[LSH] Start Asgardium Server");
@@ -63,11 +65,13 @@ webRouterLoader.init(expressApp, express.Router());
 
 // 실행중인 프로세스 종료
 if (process.platform == "win32") {
-// 정상동작안함(수동으로 정상동작함)
-//    const cmd = require('child_process');
-//    cmd.get("netstat -nao | findstr " + expressApp.get("port"), (err, data, stderr) => {
-//        nodeCmd.get("taskkill /f /pid " + data[4], (err, data, stderr)=>{});
-//    });
+    var netstat = shell.exec("netstat -nao | findstr " + expressApp.get("port")).stdout;
+    var netstatSplit = netstat.replace(/\s{2,}/gi, ' ').split(' ');
+    if (undefined != netstatSplit[5])
+    {
+        shell.exec("taskkill /f /pid " + netstatSplit[5]);
+        console.log("Kill Process PID " + netstatSplit[5]);
+    }
 }
 else {
     // sudo lsof -i :"포트 번호"
@@ -85,6 +89,7 @@ var webServer = https.createServer(options, expressApp).listen(expressApp.get("p
 {
     console.log("[LSH] Start Express HTTPS Server");
     
+    // DB가 준비되기 전까지 초기화 대기
     var initServer = setInterval(function()
     {
         var database = expressApp.get("database");
