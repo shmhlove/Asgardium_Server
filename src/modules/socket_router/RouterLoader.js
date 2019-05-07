@@ -11,16 +11,17 @@ router_loader.init = function(app, socket)
         var curRouter = config.socket_route_info[iLoop];
         var curModule = require(curRouter.file);
         
-        // app, socket을 어떻게 넘겨주지??
-        // curModule[curRouter.method](app, socket, message); 포인트 잃어버릴꺼같은데??
-        
-        socket.on(curRouter.event_name, (message) => 
-        {
-            curModule[curRouter.method](app, socket, message);
-        });
-        
-        console.log("[LSH] added socket router module : %s %s", curRouter.event_name, curRouter.method);
+        connectSocketEvent(app, socket, curRouter.event_name, curModule[curRouter.method]);
+        console.log("[LSH] added router in socket : %s %s", curRouter.event_name, curRouter.method);
     }
+}
+
+function connectSocketEvent(app, socket, eventName, eventMethod)
+{
+    socket.on(eventName, (message) => 
+    {
+        eventMethod(app, socket, message);
+    });
 }
 
 module.exports = router_loader;

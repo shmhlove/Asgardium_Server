@@ -64,7 +64,6 @@ var makeResponse = function(req, data, error)
     };
     
     console.log("[LSH] %s %s 응답(%s)", req.method, req.url, result["result"] ? "succeed" : "failed");
-    //console.log(JSON.stringify(result));
     
     return result;
 }

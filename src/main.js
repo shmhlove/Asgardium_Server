@@ -26,14 +26,11 @@ var expressBodyParser = require("body-parser");
 var https = require("https");
 var path = require("path");
 var shell = require("shelljs");
-var webSocket = require("socket.io");
 var cors = require("cors");
 var fs = require('fs');
 
 // my modules
 var config = require("./modules/Config");
-var webRouterLoader = require("./modules/web_router/RouterLoader");
-var socketRouterLoader = require("./modules/socket_router/RouterLoader");
 var database = require("./modules/database/Database");
 var initialization = require("./modules/internal/Initialization");
 
@@ -54,16 +51,16 @@ expressApp.set("certificate", options);
 expressApp.use(expressBodyParser.urlencoded({extended: false}));
 expressApp.use(expressBodyParser.json());
 
+// cors를 미들웨어로 사용하도록 등록(현재 도메인과 다른 도메인으로 리소스가 요청될 경우 허용처리)
+expressApp.use(cors());
+
 // static 패스 등록(public디렉토리를 /public으로 접근할 수 있도록)
 //expressApp.use("/public", expressStatic(path.join(__dirname, "public")));
 
 // 데이터 베이스 등록
 database.init(expressApp);
 
-// 라우터 등록
-webRouterLoader.init(expressApp, express.Router());
-
-// 실행중인 프로세스 종료
+// 실행중인 서버 프로세스 종료처리
 if (process.platform == "win32") {
     // netstat -nao | findstr "포트번호"
     // taskkill /f /pid "프로세스ID"
@@ -97,7 +94,7 @@ var webServer = https.createServer(options, expressApp).listen(expressApp.get("p
     {
         var database = expressApp.get("database");
         if (database) {
-            initialization.initialization(expressApp, function()
+            initialization.init(express, expressApp, webServer, function()
             {
                 console.log("[LSH] Ready Express HTTPS Server : %s:%s", 
                             expressApp.get("host"), expressApp.get("port"));
@@ -105,22 +102,4 @@ var webServer = https.createServer(options, expressApp).listen(expressApp.get("p
             clearInterval(initServer);
         }
     }, 100);
-});
-
-// 웹 소켓 설정 : cors를 미들웨어로 사용하도록 등록
-expressApp.use(cors());
-
-// 아래 코드처럼 네임스페이스가 들어가면 전체메시지 발송이 안되네..
-//var socketio = webSocket(server);
-//socketio.of("namespace").on("connection", function(socket)
-
-var io = webSocket.listen(webServer);
-io.sockets.on("connection", function(socket)
-{
-    // socket 객체에 클라이언트의 Host와 Port 정보를 속성으로 추가
-    console.log("[LSH] connection to : ", socket.id, "->", socket.request.connection._peername);
-    socket.remoteAddress = socket.request.connection._peername.address;
-    socket.remotePort = socket.request.connection._peername.port;
-    
-    socketRouterLoader.init(expressApp, socket);
 });
