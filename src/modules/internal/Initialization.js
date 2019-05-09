@@ -36,22 +36,22 @@ var init = function(express, expressApp, webServer, callback)
             
             // Socket 연결
             var io = webSocket.listen(webServer);
-            
-//            io.set('pingTimeout', 15000);
-//            io.set('PingInterval', 8000);
-            
             expressApp.set("socket.io", io);
             
             io.sockets.on("connection", function(socket)
             {
                 console.log("[LSH] socket connection to : ", socket.id, "->", socket.request.connection._peername);
                 
-//                var sockets = expressApp.get("sockets");
-//                if (undefined == sockets) {
-//                    sockets = [];
-//                }
-//                sockets.add(socket.id, socket);
-//                expressApp.set("sockets", sockets);
+                // express에 Socket 저장
+                // UserId와 소켓을 매칭시켜줘야한다.
+                // 단, 소켓Id로 소켓을 찾기가 힘들다. 이걸 어떻게 구성할까?
+                
+                var sockets = expressApp.get("sockets");
+                if (undefined == sockets) {
+                    sockets = {};
+                    expressApp.set("sockets", sockets)
+                }
+                sockets[socket.id] = socket;
                 
                 // socket 객체에 클라이언트의 Host와 Port 정보를 속성으로 추가
                 socket.remoteAddress = socket.request.connection._peername.address;
@@ -61,6 +61,11 @@ var init = function(express, expressApp, webServer, callback)
                 socket.on("disconnect", function(message)
                 {
                     console.log("[LSH] socket event -> disconnect(" + socket.id + ") : " + message);
+                    
+                    var sockets = expressApp.get("sockets");
+                    if (sockets) {
+                        delete sockets[socket.id];
+                    }
                     socket = null;
                 });
                 
@@ -226,7 +231,7 @@ function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActive
 function startSocketPolling(app)
 {
     // 인스턴스 회사 테이블 소켓폴링
-    var socketPollinginstanceMiningActiveCompany = setInterval(function(app)
+    var socketPollinginstanceMiningActiveCompany = setInterval(function()
     {
         socketPolling.socketPollingInstanceMiningActiveCompany(app);
     }, 1000);

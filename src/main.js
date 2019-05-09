@@ -36,6 +36,7 @@ var initialization = require("./modules/internal/Initialization");
 
 var expressApp = express();
 
+
 // HTTPS용 인증서
 var options = {  
     key: fs.readFileSync(path.join(__dirname, "keys", "HTTPS_key.pem")),

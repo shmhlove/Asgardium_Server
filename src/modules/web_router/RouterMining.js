@@ -28,8 +28,6 @@ var subscribe_mining_active_info = function(req, res)
                 subscribe_mining_active_info.push(userId);
             }
         }
-        
-        req.app.set("subscribe_mining_active_info", subscribe_mining_active_info);
     }
     
     res.send(util.makeResponse(req, {"user_id":userId}, null));
@@ -62,7 +60,6 @@ var unsubscribe_mining_active_info = function(req, res)
                 subscribe_mining_active_info.splice(index, 1);
             }
         }
-        req.app.set("subscribe_mining_active_info", subscribe_mining_active_info);
     }
     
     res.send(util.makeResponse(req, {"user_id":userId}, null));
