@@ -51,7 +51,7 @@ module.exports =
     
     socket_route_info:
     [
-        {file:"./RouterCommon", event_name:"forceDisconnect", method:"forceDisconnect"}
+        {file:"./RouterCommon", event_name:"force_disconnect", method:"force_disconnect"}
         , {file:"./RouterCommon", event_name:"test_message", method:"test_message"}
     ],
     

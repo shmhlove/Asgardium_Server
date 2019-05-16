@@ -13,10 +13,10 @@
 // ---- 특정 그룹에게만 메시지 보내기
 
 // 클라이언트 요청에 의한 명시적인 연결종료
-var forceDisconnect = function(app, socket, message)
+var force_disconnect = function(app, socket, message)
 {
-    console.log("[LSH] socket event -> forceDisconnect(" + socket.id + ") : " + message);
-    socket.emit('forceDisconnect', "");
+    console.log("[LSH] socket event -> force_disconnect(" + socket.id + ") : " + message);
+    socket.emit('force_disconnect', "");
     socket.disconnect();
 }
 
@@ -27,5 +27,5 @@ var test_message = function(app, socket, message)
     socket.emit('test_message', message);
 }
 
-module.exports.forceDisconnect = forceDisconnect;
+module.exports.force_disconnect = force_disconnect;
 module.exports.test_message = test_message;
