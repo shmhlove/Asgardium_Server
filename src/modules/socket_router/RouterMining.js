@@ -13,17 +13,16 @@
 // ---- 특정 그룹에게만 메시지 보내기
 
 // 클라이언트 요청에 의한 명시적인 연결종료
-var force_disconnect = function(app, socket, message)
+var subscribe_mining_active_info = function(app, socket, message)
 {
-    socket.emit('force_disconnect', "");
-    socket.disconnect();
+    socket.emit('subscribe_mining_active_info', "");
 }
 
 // 테스트 메시지
-var test_message = function(app, socket, message)
+var unsubscribe_mining_active_info = function(app, socket, message)
 {
-    socket.emit('test_message', message);
+    socket.emit('unsubscribe_mining_active_info', "");
 }
 
-module.exports.force_disconnect = force_disconnect;
-module.exports.test_message = test_message;
+module.exports.subscribe_mining_active_info = subscribe_mining_active_info;
+module.exports.unsubscribe_mining_active_info = unsubscribe_mining_active_info;

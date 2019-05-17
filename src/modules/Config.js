@@ -53,6 +53,8 @@ module.exports =
     [
         {file:"./RouterCommon", event_name:"force_disconnect", method:"force_disconnect"}
         , {file:"./RouterCommon", event_name:"test_message", method:"test_message"}
+        , {file:"./RouterMining", event_name:"subscribe_mining_active_info", method:"subscribe_mining_active_info"}
+        , {file:"./RouterMining", event_name:"unsubscribe_mining_active_info", method:"unsubscribe_mining_active_info"}
     ],
     
 //    facebook : 

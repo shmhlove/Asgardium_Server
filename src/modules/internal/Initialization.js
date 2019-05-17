@@ -60,7 +60,7 @@ var init = function(express, expressApp, webServer, callback)
                 // 연결종료
                 socket.on("disconnect", function(message)
                 {
-                    console.log("[LSH] socket event -> disconnect(" + socket.id + ") : " + message);
+                    console.log("[LSH] socket disconnect to : ", socket.id, "->", socket.request.connection._peername);
                     
                     var sockets = expressApp.get("sockets");
                     if (sockets) {
@@ -69,7 +69,7 @@ var init = function(express, expressApp, webServer, callback)
                     socket = null;
                 });
                 
-                // Socket라우터 연결
+                // Socket 라우터 연결
                 socketRouterLoader.init(expressApp, socket);
             });
             

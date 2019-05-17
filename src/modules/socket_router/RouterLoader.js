@@ -3,7 +3,7 @@ var config = require("../Config");
 var router_loader = {};
 router_loader.init = function(app, socket)
 {
-	console.log("[LSH] called socket_router_loader.init(app, router)");
+	console.log("[LSH] called socket_router_loader.init(app, socket)");
     
 	var infoLen = config.socket_route_info.length;
 	for (var iLoop = 0; iLoop < infoLen; ++iLoop)
@@ -11,15 +11,17 @@ router_loader.init = function(app, socket)
         var curRouter = config.socket_route_info[iLoop];
         var curModule = require(curRouter.file);
         
-        connectSocketEvent(app, socket, curRouter.event_name, curModule[curRouter.method]);
-        console.log("[LSH] added router in socket : %s %s", curRouter.event_name, curRouter.method);
+        addSocketEvent(app, socket, curRouter.event_name, curModule[curRouter.method]);
     }
 }
 
-function connectSocketEvent(app, socket, eventName, eventMethod)
+function addSocketEvent(app, socket, eventName, eventMethod)
 {
+    console.log("[LSH] added router in socket : %s", eventName);
+    
     socket.on(eventName, (message) => 
     {
+        console.log("[LSH] arrive socket event : %s, %s", eventName, message);
         eventMethod(app, socket, message);
     });
 }
