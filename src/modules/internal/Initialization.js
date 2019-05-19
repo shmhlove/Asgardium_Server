@@ -1,13 +1,11 @@
 var async = require("async");
-var webSocket = require("socket.io");
 
 var config = require("../Config");
-var routerUtil = require("../web_router/RouterUtil");
+var util = require("./Util");
 var webRouterLoader = require("../web_router/RouterLoader");
 var socketRouterLoader = require("../socket_router/RouterLoader");
-var socketPolling = require("../socket_router/SocketPolling");
 
-var init = function(express, expressApp, webServer, callback)
+var init = function(expressModule, expressApp, webServer, callback)
 {
     console.log("[LSH] called initialization");
 
@@ -31,57 +29,18 @@ var init = function(express, expressApp, webServer, callback)
             // DB에 인스턴스 테이블 생성
             createInstanceCompanyTable(expressApp, callback);
             
-            // Web라우터 연결
-            webRouterLoader.init(expressApp, express.Router());
+            // Web 라우터 연결
+            webRouterLoader.init(expressApp, expressModule.Router());
             
             // Socket 연결
-            var io = webSocket.listen(webServer);
-            expressApp.set("socket.io", io);
-            
-            io.sockets.on("connection", function(socket)
-            {
-                console.log("[LSH] socket connection to : ", socket.id, "->", socket.request.connection._peername);
-                
-                // express에 Socket 저장
-                // UserId와 소켓을 매칭시켜줘야한다.
-                // 단, 소켓Id로 소켓을 찾기가 힘들다. 이걸 어떻게 구성할까?
-                
-                var sockets = expressApp.get("sockets");
-                if (undefined == sockets) {
-                    sockets = {};
-                    expressApp.set("sockets", sockets)
-                }
-                sockets[socket.id] = socket;
-                
-                // socket 객체에 클라이언트의 Host와 Port 정보를 속성으로 추가
-                socket.remoteAddress = socket.request.connection._peername.address;
-                socket.remotePort = socket.request.connection._peername.port;
-                
-                // 연결종료
-                socket.on("disconnect", function(message)
-                {
-                    console.log("[LSH] socket disconnect to : ", socket.id, "->", socket.request.connection._peername);
-                    
-                    var sockets = expressApp.get("sockets");
-                    if (sockets) {
-                        delete sockets[socket.id];
-                    }
-                    socket = null;
-                });
-                
-                // Socket 라우터 연결
-                socketRouterLoader.init(expressApp, socket);
-            });
-            
-            // SocketPolling 시작
-            startSocketPolling(expressApp);
+            socketRouterLoader.init(expressApp, webServer);
         }
     );
 };
 
 function preLoadTable(app, collectionName, callback)
 {
-    var table = routerUtil.getCollection(app, collectionName);
+    var table = util.getCollection(app, collectionName);
     if (!table) {
         console.error("[LSH][loapreLoadTabledTable] not found collection ( %s )", collectionName);
         callback(false, collectionName);
@@ -110,7 +69,7 @@ function preLoadTable(app, collectionName, callback)
 
 var createInstanceCompanyTable = function(app, callback)
 {
-    var instanceMiningActiveCompany = routerUtil.getCollection(app, "instance_mining_active_company");
+    var instanceMiningActiveCompany = util.getCollection(app, "instance_mining_active_company");
     if (!instanceMiningActiveCompany) {
         console.error("[LSH][createInstanceCompanyTable] not found collection ( %s )", "instance_mining_active_company");
         callback();
@@ -226,17 +185,6 @@ function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActive
             }
         }
     });
-}
-
-function startSocketPolling(app)
-{
-    // 인스턴스 회사 테이블 소켓폴링
-    var socketPollinginstanceMiningActiveCompany = setInterval(function()
-    {
-        socketPolling.socketPollingInstanceMiningActiveCompany(app);
-    }, 1000);
-    
-    //clearInterval(socketPollinginstanceMiningActiveCompany);
 }
 
 module.exports.init = init;

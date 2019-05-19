@@ -1,4 +1,4 @@
-var util = require("./RouterUtil");
+var util = require("../internal/Util");
 var constant = require("../Constant");
 
 // Mining Active 정보 정기구독
@@ -7,9 +7,9 @@ var subscribe_mining_active_info = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req, true)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization, true)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -30,7 +30,7 @@ var subscribe_mining_active_info = function(req, res)
         }
     }
     
-    res.send(util.makeResponse(req, {"user_id":userId}, null));
+    res.send(util.makeWebResponse(req, {"user_id":userId}, null));
 }
 
 // Mining Active 정보 정기구독 해제
@@ -39,9 +39,9 @@ var unsubscribe_mining_active_info = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req, true)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization, true)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -62,7 +62,7 @@ var unsubscribe_mining_active_info = function(req, res)
         }
     }
     
-    res.send(util.makeResponse(req, {"user_id":userId}, null));
+    res.send(util.makeWebResponse(req, {"user_id":userId}, null));
 }
 
 module.exports.subscribe_mining_active_info = subscribe_mining_active_info;

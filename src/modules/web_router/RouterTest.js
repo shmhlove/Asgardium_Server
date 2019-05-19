@@ -1,4 +1,4 @@
-var util = require("./RouterUtil");
+var util = require("../internal/Util");
 var constant = require("../Constant");
 
 var test = function(req, res)
@@ -6,13 +6,13 @@ var test = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
-    res.send(util.makeResponse(req, {"version" : "1.0.0"}, null));
+    res.send(util.makeWebResponse(req, {"version" : "1.0.0"}, null));
 };
 
 var test_use_mining_power = function(req, res)
@@ -20,9 +20,9 @@ var test_use_mining_power = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req, true)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization, true)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -30,14 +30,14 @@ var test_use_mining_power = function(req, res)
     var userId = req.body.user_id;
     if (!userId) {
         var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
     var users = util.getCollection(req.app, "instance_users");
     if (!users) {
         var error = util.makeError(constant.Err_Common_FailedGetCollection, "Failed get DB collection ( 'instance_users' )");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -46,13 +46,13 @@ var test_use_mining_power = function(req, res)
     {
         if (err) {
             var error = util.makeError(constant.Err_Common_FailedFindCollection, "Failed find DB collection ( 'instance_users' )");
-            res.send(util.makeResponse(req, null, error));
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
 
         if (0 == docs.length) {
             var error = util.makeError(constant.Err_Auth_NoSignupUser, "No Singup User");
-            res.send(util.makeResponse(req, null, error));
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
@@ -68,7 +68,7 @@ var test_use_mining_power = function(req, res)
         
         users.updateOne({ "user_id":userId }, { $set: { mining_power_at: docs[0].mining_power_at } });
 
-        res.send(util.makeResponse(req, docs[0], null));
+        res.send(util.makeWebResponse(req, docs[0], null));
     });
 };
 
@@ -77,9 +77,9 @@ var test_reset_mining_power = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req, true)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization, true)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -87,7 +87,7 @@ var test_reset_mining_power = function(req, res)
     var userId = req.body.user_id;
     if (!userId) {
         var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -95,7 +95,7 @@ var test_reset_mining_power = function(req, res)
     var users = req.app.get("database").db.collection("instance_users");
     if (!users) {
         var error = util.makeError(constant.Err_Common_FailedGetCollection, "Failed get DB collection ( 'instance_users' )");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -104,13 +104,13 @@ var test_reset_mining_power = function(req, res)
     {
         if (err) {
             var error = util.makeError(constant.Err_Auth_NotFoundUser, "데이터 베이스 유저 조회 실패");
-            res.send(util.makeResponse(req, null, error));
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
 
         if (0 == docs.length) {
             var error = util.makeError(constant.Err_Auth_NoSignupUser, "No Singup User");
-            res.send(util.makeResponse(req, null, error));
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
@@ -118,7 +118,7 @@ var test_reset_mining_power = function(req, res)
         
         users.updateOne({ "user_id":userId }, { $set: { mining_power_at: docs[0].mining_power_at } });
 
-        res.send(util.makeResponse(req, docs[0], null));
+        res.send(util.makeWebResponse(req, docs[0], null));
     });
 };
 

@@ -1,5 +1,5 @@
 var crypto = require("crypto");
-var util = require("./RouterUtil");
+var util = require("../internal/Util");
 var constant = require("../Constant");
 
 var signup = function(req, res)
@@ -11,16 +11,16 @@ var signup = function(req, res)
     var userPass = req.body.password;
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization, true)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
     // 파라미터 유효성 체크
     if (!userEmail || !userName || !userPass) {
         var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -28,7 +28,7 @@ var signup = function(req, res)
     var users = util.getCollection(req.app, "instance_users");
     if (!users) {
         var error = util.makeError(constant.Err_Common_FailedGetCollection, "Failed get DB collection ( 'instance_users' )");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -37,13 +37,13 @@ var signup = function(req, res)
     {
         if (err) {
             var error = util.makeError(constant.Err_Common_FailedFindCollection, "Failed find DB collection ( 'instance_users' )");
-            res.send(util.makeResponse(req, null, error));
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
         if (0 < docs.length) {
             var error = util.makeError(constant.Err_Auth_AlreadySignupUser, "Already Singup User", docs[0]);
-            res.send(util.makeResponse(req, null, error));
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
@@ -58,12 +58,12 @@ var signup = function(req, res)
             {
                 if (err) {
                     var error = util.makeError(constant.Err_Common_FailedWriteDocument, "Failed Create User");
-                    res.send(util.makeResponse(req, null, error));
+                    res.send(util.makeWebResponse(req, null, error));
                     return;
                 }
                 
                 var data = result["ops"][0];
-                res.send(util.makeResponse(req, data, null));
+                res.send(util.makeWebResponse(req, data, null));
             });
         });
     });
@@ -77,16 +77,16 @@ var signin = function(req, res)
     var userPass = req.body.password;
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
     // 파라미터 유효성 체크 : 에러발생
     if (!userEmail || !userPass) {
         var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -94,7 +94,7 @@ var signin = function(req, res)
     var users = util.getCollection(req.app, "instance_users");
     if (!users) {
         var error = util.makeError(constant.Err_Common_FailedGetCollection, "Failed get DB collection ( 'instance_users' )");
-        res.send(util.makeResponse(req, null, error));
+        res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
@@ -103,24 +103,24 @@ var signin = function(req, res)
     {
         if (err) {
             var error = util.makeError(constant.Err_Common_FailedFindCollection, "Failed find DB collection ( 'instance_users' )");
-            res.send(util.makeResponse(req, null, error));
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
 
         if (0 == docs.length) {
             var error = util.makeError(constant.Err_Auth_NoSignupUser, "No Singup User");
-            res.send(util.makeResponse(req, null, error));
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
 
         if (docs[0]["password"] != userPass)
         {
             var error = util.makeError(constantModule.Err_Auth_NoMatchPassword, "No Match Password");
-            res.send(util.makeResponse(req, null, error));
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
-        res.send(util.makeResponse(req, docs[0], null));
+        res.send(util.makeWebResponse(req, docs[0], null));
     });
 }
 

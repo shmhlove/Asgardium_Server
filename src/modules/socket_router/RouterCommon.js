@@ -1,28 +1,30 @@
-// ---- 메시지를 전송한 클라이언트에게 메시지 보내기
-//socket.emit('test_message', message);
-
-// ---- 모든 클라이언트에게 메시지 보내기
-//io.emit('test_message', message);
-
-// ---- 메시지를 전송한 클라이언트를 제외한 모든 클라이언트에게 메시지 보내기
-//socket.broadcast.emit('test_message', message);
-
-// ---- 특정 클라이언트에게만 메시지 보내기
-// io.to(socket.id).emit('event_name', data);
-
-// ---- 특정 그룹에게만 메시지 보내기
+var util = require("../internal/Util");
 
 // 클라이언트 요청에 의한 명시적인 연결종료
 var force_disconnect = function(app, socket, message)
 {
-    socket.emit('force_disconnect', "");
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(app, message.jwt_header, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        socket.emit('force_disconnect', util.makeSocketResponse("force_disconnect", null, error));
+        return;
+    }
+    
+    socket.emit('force_disconnect', util.makeSocketResponse("force_disconnect", "{}", null));
     socket.disconnect();
 }
 
 // 테스트 메시지
 var test_message = function(app, socket, message)
 {
-    socket.emit('test_message', message);
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(app, message.jwt_header, false)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        socket.emit('test_message', util.makeSocketResponse("test_message", null, error));
+        return;
+    }
+    
+    socket.emit('test_message', util.makeSocketResponse("test_message", message.body, null));
 }
 
 module.exports.force_disconnect = force_disconnect;
