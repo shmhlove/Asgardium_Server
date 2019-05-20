@@ -103,9 +103,9 @@ var instance_users = function(req, res)
     }
     
     // DB에서 테이블 로드
-    var response = util.loadCollectionAtDB(req, req.app, "instance_users", function(response)
+    var response = util.loadCollectionAtDB(req.app, "instance_users", function(response, error)
     {
-        res.send(response);
+        res.send(util.makeWebResponse(req, response, error));
     });
 }
 
@@ -121,9 +121,9 @@ var instance_mining_active_company = function(req, res)
     }
     
     // DB에서 테이블 로드
-    var response = util.loadCollectionAtDB(req, req.app, "instance_mining_active_company", function(response)
+    var response = util.loadCollectionAtDB(req.app, "instance_mining_active_company", function(response, error)
     {
-        res.send(response);
+        res.send(util.makeWebResponse(req, response, error));
     });
 }
 

@@ -20,27 +20,27 @@ var loadCollectionAtExpressApp = function(req, app, collectionName, callback)
     }
 }
 
-var loadCollectionAtDB = function(req, app, collectionName, callback)
+var loadCollectionAtDB = function(app, collectionName, callback)
 {
     var table = getCollection(app, collectionName);
     if (!table) {
         var error = makeError(constant.Err_Common_FailedGetCollection, "Not found collection ( " + collectionName + " )");
-        callback(makeWebResponse(req, null, error));
+        callback(null, error);
     }
     
     table.find().toArray(function(err, docs) 
     {
         if (err) {
             var error = makeError(constant.Err_Common_FailedFindCollection, "Failed find collection ( " + collectionName + " )");
-            callback(makeWebResponse(req, null, error));
+            callback(null, error);
         }
 
         if (0 == docs.length) {
             var error = makeError(constant.Err_Common_EmptyCollection, "Empty collection ( " + collectionName + " )");
-            callback(makeWebResponse(req, null, error));
+            callback(null, error);
         }
         
-        callback(makeWebResponse(req, docs, null));
+        callback(docs, null);
     });
 }
 
@@ -67,7 +67,7 @@ var makeWebResponse = function(req, data, error)
     return result;
 }
 
-var makeSocketResponse = function(eventName, data, error)
+var makeSocketResponse = function(eventName, data, error, isLoging)
 {
     var result = {
         "result" : error ? false : true,
@@ -75,7 +75,9 @@ var makeSocketResponse = function(eventName, data, error)
         "error" : error
     };
     
-    console.log("[LSH] socket - %s 응답(%s)", eventName, result.result ? "succeed" : "failed");
+    if (isLoging) {
+        console.log("[LSH] socket - %s 응답(%s)", eventName, result.result ? "succeed" : "failed");
+    }
     
     return JSON.stringify(result);
 }

@@ -32,17 +32,13 @@ router_loader.init = function(app, webServer)
     {
         console.log("[LSH] socket connection to : ", socket.id, "->", socket.request.connection._peername);
         
-        // app에 Socket 저장
-        // UserId와 소켓을 매칭시켜줘야한다.
-        // 단, 소켓Id로 소켓을 찾기가 힘들다. 이걸 어떻게 구성할까?
-        
         var sockets = app.get("sockets");
         if (undefined == sockets) {
             sockets = {};
-            app.set("sockets", sockets)
         }
         sockets[socket.id] = socket;
-
+        app.set("sockets", sockets);
+        
         // socket 객체에 클라이언트의 Host와 Port 정보를 속성으로 추가
         socket.remoteAddress = socket.request.connection._peername.address;
         socket.remotePort = socket.request.connection._peername.port;
