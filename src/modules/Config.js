@@ -1,7 +1,7 @@
 module.exports = 
 {
-    //server_host : "13.124.43.70",
-    server_host : "localhost",
+    server_host : "13.124.43.70",
+    //server_host : "localhost",
     server_port : 3001,
     
     db_url : "mongodb://localhost:27017/Asgardium",
@@ -36,9 +36,6 @@ module.exports =
         
         , {file:"./RouterAuth", path:"/process/signup", method:"signup", type:"post"}
         , {file:"./RouterAuth", path:"/process/signin", method:"signin", type:"post"}
-        
-        , {file:"./RouterMining", path:"/process/subscribe_mining_active_info", method:"subscribe_mining_active_info", type:"post"}
-        , {file:"./RouterMining", path:"/process/unsubscribe_mining_active_info", method:"unsubscribe_mining_active_info", type:"post"}
         
         , {file:"./RouterTable", path:"/table/global_config", method:"global_config", type:"get"}
         , {file:"./RouterTable", path:"/table/global_unit_data", method:"global_unit_data", type:"get"}
