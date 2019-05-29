@@ -1,3 +1,4 @@
+var config = require("../Config");
 var util = require("../internal/Util");
 
 var socketPolling = {};
@@ -5,11 +6,13 @@ socketPolling.startSocketPolling = function(app)
 {
     console.log("[LSH] called startSocketPolling(app, router)");
     
+    var globalConfig = app.get("global_config");
+    
     // 인스턴스 회사 테이블 소켓폴링
     var socketPollinginstanceMiningActiveCompany = setInterval(function()
     {
         socketPollingInstanceMiningActiveCompany(app);
-    }, 1000);
+    }, globalConfig.socket_polling_interval);
     
     //clearInterval(socketPollinginstanceMiningActiveCompany);
 }
