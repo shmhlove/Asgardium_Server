@@ -12,7 +12,7 @@ socketPolling.startSocketPolling = function(app)
     var socketPollinginstanceMiningActiveCompany = setInterval(function()
     {
         socketPollingInstanceMiningActiveCompany(app);
-    }, globalConfig.socket_polling_interval);
+    }, globalConfig[0].socket_polling_interval);
     
     //clearInterval(socketPollinginstanceMiningActiveCompany);
 }
