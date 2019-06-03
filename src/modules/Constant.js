@@ -13,4 +13,6 @@ module.exports =
     Err_Auth_AlreadySignupUser:2001,
     Err_Auth_NoSignupUser:2002,
     Err_Auth_NoMatchPassword:2003,
+    
+    Err_User_NoHasInventory:3001,
 };

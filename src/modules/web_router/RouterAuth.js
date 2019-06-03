@@ -11,7 +11,7 @@ var signup = function(req, res)
     var userPass = req.body.password;
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, true)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -32,6 +32,14 @@ var signup = function(req, res)
         return;
     }
     
+    // instance_user_inventories 컬렉션 얻기
+    var inventories = util.getCollection(req.app, "instance_user_inventories");
+    if (!inventories) {    
+        var error = util.makeError(constant.Err_Common_FailedGetCollection, "Failed get DB collection ( 'instance_user_inventories' )");
+        res.send(util.makeWebResponse(req, null, error));
+        return;
+    }
+    
     // 유저 가입상태 확인 후 유저생성
     users.find({"user_email":userEmail}).toArray(function(err, docs) 
     {
@@ -48,13 +56,18 @@ var signup = function(req, res)
         }
         
         createUserId(users, function(userId)
-        {
-            users.insertMany(
-            [{
-                "user_id":userId, "user_email":userEmail, "user_name":userName, "password":userPass,
-                "created_at":Date.now(), "updated_at":Date.now(), "mining_power_at":Date.now()
-            }],
-            function(err, result) 
+        {                
+            var userInfo = {
+                "unit_id" : userId
+                , "user_email" : userEmail
+                , "user_name" : userName
+                , "password" : userPass
+                , "created_at" : Date.now()
+                , "updated_at" : Date.now()
+                , "mining_power_at" : Date.now()
+            };
+            
+            users.insertOne(userInfo, function(err, result)
             {
                 if (err) {
                     var error = util.makeError(constant.Err_Common_FailedWriteDocument, "Failed Create User");
@@ -62,8 +75,27 @@ var signup = function(req, res)
                     return;
                 }
                 
-                var data = result["ops"][0];
-                res.send(util.makeWebResponse(req, data, null));
+                var inventoryInfo = {
+                    "user_id" : userId
+                    , "mining_power_at" : Date.now()
+                    , "has_units" : [ ]
+                    //, "has_units" : [ {"unit_id":1010, "quantity":10}, {"unit_id":1020, "quantity":10} ]
+                };
+                
+                var userInfo = result["ops"][0];
+                inventories.insertOne(inventoryInfo, function(err, result) 
+                {
+                    if (err) {
+                        var error = util.makeError(constant.Err_Common_FailedWriteDocument, "Failed Create User Inventory");
+                        res.send(util.makeWebResponse(req, null, error));
+                        return;
+                    }
+                    
+                    var inventoryInfo = {"inventory":result["ops"][0]};
+                    var data = Object.assign({}, userInfo, inventoryInfo);
+                    console.dir(data);
+                    res.send(util.makeWebResponse(req, data, null));
+                });
             });
         });
     });

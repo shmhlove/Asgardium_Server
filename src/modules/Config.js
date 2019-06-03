@@ -12,6 +12,7 @@ module.exports =
         
         , { file:"./InstanceMiningActiveCompanySchema", collection:"instance_mining_active_company", schemaName:"InstanceMiningActiveCompanySchema", modelName:"InstanceMiningActiveCompanyModel" }
         , { file:"./InstanceUsersSchema", collection:"instance_users", schemaName:"InstanceUsersSchema", modelName:"InstanceUsersModel" }
+        , { file:"./InstanceUserInventoriesSchema", collection:"instance_user_inventories", schemaName:"InstanceUserInventoriesSchema", modelName:"InstanceUserInventoriesModel" }
         
         , { file:"./MiningActiveCompanyNPCSchema", collection:"mining_active_company_npc", schemaName:"MiningActiveCompanyNPCSchema", modelName:"MiningActiveCompanyNPCModel" }
         , { file:"./MiningActiveQuantitySchema", collection:"mining_active_quantity", schemaName:"MiningActiveQuantitySchema", modelName:"MiningActiveQuantityModel" }
@@ -36,6 +37,8 @@ module.exports =
         
         , {file:"./RouterAuth", path:"/process/signup", method:"signup", type:"post"}
         , {file:"./RouterAuth", path:"/process/signin", method:"signin", type:"post"}
+        
+        , {file:"./RouterUser", path:"/process/instance_user_inventory", method:"instance_user_inventory", type:"post"}
         
         , {file:"./RouterTable", path:"/table/global_config", method:"global_config", type:"get"}
         , {file:"./RouterTable", path:"/table/global_unit_data", method:"global_unit_data", type:"get"}
