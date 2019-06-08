@@ -90,7 +90,6 @@ var webServer = https.createServer(options, expressApp).listen(expressApp.get("p
 {
     console.log("[LSH] Start Express HTTPS Server");
     
-    // DB가 준비되기 전까지 초기화 대기
     var initServer = setInterval(function()
     {
         var database = expressApp.get("database");

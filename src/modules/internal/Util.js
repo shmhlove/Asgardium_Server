@@ -8,45 +8,104 @@ var requestLog = function(req)
     console.log("[LSH] web - %s %s 요청", req.method, req.url);
 }
 
-var loadCollectionAtExpressApp = function(req, app, collectionName, callback)
+var getDocsAtApp = function(app, collectionName, callback)
 {
-    var table = app.get(collectionName);
-    if (table) {
-        callback(makeWebResponse(req, table, null));
+    var docs = app.get(collectionName);
+    if (docs) {
+        if (callback) {
+            callback(true, docs, null);
+        }
+        return docs;
     }
     else {
-        var error = makeError(constant.Err_Common_FailedGetCollection, "Not found collection in ExpressApp( " + collectionName + " )");
-        callback(makeWebResponse(req, null, error));
+        if (callback) {
+            var error = makeError(constant.Err_Common_FailedgetDocsAtApp, 
+                                  "Not found documents in App( " + collectionName + " )");
+            callback(false, null, error);
+        }
+        return null;
     }
 }
 
-var loadCollectionAtDB = function(app, collectionName, callback)
+var getDocsAllAtDB = function(app, collectionName, condition, callback)
 {
-    var table = getCollection(app, collectionName);
-    if (!table) {
-        var error = makeError(constant.Err_Common_FailedGetCollection, "Not found collection ( " + collectionName + " )");
-        callback(null, error);
+    var collection = getCollectionAtDB(app, collectionName);
+    if (!collection) {
+        var error = makeError(constant.Err_Common_FailedgetCollectionAtDB,
+                              "Not found collection ( " + collectionName + " )");
+        callback(false, null, error);
     }
-    
-    table.find().toArray(function(err, docs) 
-    {
-        if (err) {
-            var error = makeError(constant.Err_Common_FailedFindCollection, "Failed find collection ( " + collectionName + " )");
-            callback(null, error);
-        }
-
-        if (0 == docs.length) {
-            var error = makeError(constant.Err_Common_EmptyCollection, "Empty collection ( " + collectionName + " )");
-            callback(null, error);
-        }
-        
-        callback(docs, null);
-    });
+    else {
+        collection.find(condition).toArray(function(err, docs) 
+        {
+            if (err) {
+                var error = makeError(constant.Err_Common_FailedgetDocsAtDB,
+                                      "Failed find documents ( " + collectionName + " )");
+                callback(false, null, error);
+                return;
+            }
+            
+            if (0 == docs.length) {
+                var error = makeError(constant.Err_Common_EmptyDocuments,
+                                      "Empty documents ( " + collectionName + " )");
+                callback(false, null, error);
+                return;
+            }
+            
+            callback(true, docs, null);
+        });
+    }
 }
 
-var getCollection = function(app, collection)
+var getDocsOneAtDB = function(app, collectionName, condition, callback)
+{
+    var collection = getCollectionAtDB(app, collectionName);
+    if (!collection) {
+        var error = makeError(constant.Err_Common_FailedgetCollectionAtDB,
+                              "Not found collection ( " + collectionName + " )");
+        callback(false, null, error);
+    }
+    else {
+        collection.findOne(condition, function(err, docs) 
+        {
+            if (err) {
+                var error = makeError(constant.Err_Common_FailedgetDocsAtDB,
+                                      "Failed find documents ( " + collectionName + " )");
+                callback(false, null, error);
+            }
+            
+            callback(true, docs, null);
+        });
+    }
+}
+
+var getCollectionAtDB = function(app, collection)
 {
     return app.get("database").db.collection(collection);
+}
+
+var updateOneDocumentAtDB = function(app, collectionName, condition, updateData, callback)
+{
+    var collection = getCollectionAtDB(app, collectionName);
+    if (!collection) {
+        var error = makeError(constant.Err_Common_FailedgetCollectionAtDB,
+                              "Not found collection ( " + collectionName + " )");
+        callback(false, null, error);
+    }
+    
+    var updateData = { $set: updateData };
+    collection.updateOne(condition, updateData, function(err)
+    {
+        if (err) {
+            var error = makeError(constant.Err_Common_FailedUpdateDocuments,
+                                  "Failed update documents ( " + collectionName + " )");
+            callback(false, null, error);
+        }
+        else {
+            
+            callback(true, null, null);
+        }
+    });
 }
 
 var makeError = function(code, message, extras)
@@ -130,9 +189,11 @@ var checkCertificate = function(app, jwtHeader, isCheckAccessToken)
 }
 
 module.exports.requestLog = requestLog;
-module.exports.getCollection = getCollection;
-module.exports.loadCollectionAtDB = loadCollectionAtDB;
-module.exports.loadCollectionAtExpressApp = loadCollectionAtExpressApp;
+module.exports.getDocsAtApp = getDocsAtApp;
+module.exports.getDocsAllAtDB = getDocsAllAtDB;
+module.exports.getDocsOneAtDB = getDocsOneAtDB;
+module.exports.getCollectionAtDB = getCollectionAtDB;
+module.exports.updateOneDocumentAtDB = updateOneDocumentAtDB;
 module.exports.makeError = makeError;
 module.exports.makeWebResponse = makeWebResponse;
 module.exports.makeSocketResponse = makeSocketResponse;

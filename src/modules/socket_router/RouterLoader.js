@@ -33,7 +33,7 @@ router_loader.init = function(app, webServer)
         console.log("[LSH] socket connection to : ", socket.id, "->", socket.request.connection._peername);
         
         var sockets = app.get("sockets");
-        if (undefined == sockets) {
+        if (!sockets) {
             sockets = {};
         }
         sockets[socket.id] = socket;

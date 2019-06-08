@@ -13,9 +13,9 @@ var global_config = function(req, res)
     }
     
     // ExpressApp 메모리에 올라온 테이블 릴레이
-    util.loadCollectionAtExpressApp(req, req.app, "global_config", function(response)
+    util.getDocsAtApp(req.app, "global_config", function(result, data, error)
     {
-        res.send(response);
+        res.send(util.makeWebResponse(req, data, error));
     });
 }
 
@@ -31,9 +31,9 @@ var global_unit_data = function(req, res)
     }
     
     // ExpressApp 메모리에 올라온 테이블 릴레이
-    util.loadCollectionAtExpressApp(req, req.app, "global_unit_data", function(response)
+    util.getDocsAtApp(req.app, "global_unit_data", function(result, data, error)
     {
-        res.send(response);
+        res.send(util.makeWebResponse(req, data, error));
     });
 }
 
@@ -49,9 +49,9 @@ var mining_active_company_npc = function(req, res)
     }
     
     // ExpressApp 메모리에 올라온 테이블 릴레이
-    util.loadCollectionAtExpressApp(req, req.app, "mining_active_company_npc", function(response)
+    util.getDocsAtApp(req.app, "mining_active_company_npc", function(result, data, error)
     {
-        res.send(response);
+        res.send(util.makeWebResponse(req, data, error));
     });
 }
 
@@ -67,9 +67,9 @@ var mining_active_quantity = function(req, res)
     }
     
     // ExpressApp 메모리에 올라온 테이블 릴레이
-    util.loadCollectionAtExpressApp(req, req.app, "mining_active_quantity", function(response)
+    util.getDocsAtApp(req.app, "mining_active_quantity", function(result, data, error)
     {
-        res.send(response);
+        res.send(util.makeWebResponse(req, data, error));
     });
 }
 
@@ -85,9 +85,9 @@ var mining_active_supply = function(req, res)
     }
     
     // ExpressApp 메모리에 올라온 테이블 릴레이
-    util.loadCollectionAtExpressApp(req, req.app, "mining_active_supply", function(response)
+    util.getDocsAtApp(req.app, "mining_active_supply", function(result, data, error)
     {
-        res.send(response);
+        res.send(util.makeWebResponse(req, data, error));
     });
 }
 
@@ -103,9 +103,9 @@ var instance_users = function(req, res)
     }
     
     // DB에서 테이블 로드
-    var response = util.loadCollectionAtDB(req.app, "instance_users", function(response, error)
+    var response = util.getDocsAllAtDB(req.app, "instance_users", null, function(result, data, error)
     {
-        res.send(util.makeWebResponse(req, response, error));
+        res.send(util.makeWebResponse(req, data, error));
     });
 }
 
@@ -121,9 +121,9 @@ var instance_mining_active_company = function(req, res)
     }
     
     // DB에서 테이블 로드
-    var response = util.loadCollectionAtDB(req.app, "instance_mining_active_company", function(response, error)
+    var response = util.getDocsAllAtDB(req.app, "instance_mining_active_company", null, function(result, data, error)
     {
-        res.send(util.makeWebResponse(req, response, error));
+        res.send(util.makeWebResponse(req, data, error));
     });
 }
 

@@ -19,7 +19,7 @@ module.exports =
         , { file:"./MiningActiveSupplySchema", collection:"mining_active_supply", schemaName:"MiningActiveSupplySchema", modelName:"MiningActiveSupplyModel" }
     ],
     
-    pre_load_table:
+    pre_load_collection:
     [
         "global_config", 
         "global_unit_data", 

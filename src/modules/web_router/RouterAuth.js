@@ -6,10 +6,6 @@ var signup = function(req, res)
 {
     util.requestLog(req);
     
-    var userEmail = req.body.email;
-    var userName = req.body.name;
-    var userPass = req.body.password;
-    
     // 헤더 유효성 체크
     if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
@@ -18,6 +14,9 @@ var signup = function(req, res)
     }
     
     // 파라미터 유효성 체크
+    var userEmail = req.body.email;
+    var userName = req.body.name;
+    var userPass = req.body.password;
     if (!userEmail || !userName || !userPass) {
         var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
         res.send(util.makeWebResponse(req, null, error));
@@ -25,17 +24,19 @@ var signup = function(req, res)
     }
     
     // instance_users 컬렉션 얻기
-    var users = util.getCollection(req.app, "instance_users");
+    var users = util.getCollectionAtDB(req.app, "instance_users");
     if (!users) {
-        var error = util.makeError(constant.Err_Common_FailedGetCollection, "Failed get DB collection ( 'instance_users' )");
+        var error = util.makeError(constant.Err_Common_FailedgetCollectionAtDB,
+                                   "Failed get DB collection ( 'instance_users' )");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
     // instance_user_inventories 컬렉션 얻기
-    var inventories = util.getCollection(req.app, "instance_user_inventories");
+    var inventories = util.getCollectionAtDB(req.app, "instance_user_inventories");
     if (!inventories) {    
-        var error = util.makeError(constant.Err_Common_FailedGetCollection, "Failed get DB collection ( 'instance_user_inventories' )");
+        var error = util.makeError(constant.Err_Common_FailedgetCollectionAtDB,
+                                   "Failed get DB collection ( 'instance_user_inventories' )");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
@@ -44,13 +45,15 @@ var signup = function(req, res)
     users.find({"user_email":userEmail}).toArray(function(err, docs) 
     {
         if (err) {
-            var error = util.makeError(constant.Err_Common_FailedFindCollection, "Failed find DB collection ( 'instance_users' )");
+            var error = util.makeError(constant.Err_Common_FailedgetDocsAtDB,
+                                       "Failed find documents ( 'instance_users' )");
             res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
         if (0 < docs.length) {
-            var error = util.makeError(constant.Err_Auth_AlreadySignupUser, "Already Singup User", docs[0]);
+            var error = util.makeError(constant.Err_Auth_AlreadySignupUser,
+                                       "Already Singup User", docs[0]);
             res.send(util.makeWebResponse(req, null, error));
             return;
         }
@@ -58,26 +61,26 @@ var signup = function(req, res)
         createUserId(users, function(userId)
         {                
             var userInfo = {
-                "unit_id" : userId
+                "user_id" : userId
                 , "user_email" : userEmail
                 , "user_name" : userName
                 , "password" : userPass
                 , "created_at" : Date.now()
                 , "updated_at" : Date.now()
-                , "mining_power_at" : Date.now()
+                , "mining_power_at" : 0
             };
             
             users.insertOne(userInfo, function(err, result)
             {
                 if (err) {
-                    var error = util.makeError(constant.Err_Common_FailedWriteDocument, "Failed Create User");
+                    var error = util.makeError(constant.Err_Common_FailedWriteDB, "Failed Create User");
                     res.send(util.makeWebResponse(req, null, error));
                     return;
                 }
                 
                 var inventoryInfo = {
                     "user_id" : userId
-                    , "mining_power_at" : Date.now()
+                    , "mining_power_at" : 0
                     , "has_units" : [ ]
                     //, "has_units" : [ {"unit_id":1010, "quantity":10}, {"unit_id":1020, "quantity":10} ]
                 };
@@ -86,14 +89,13 @@ var signup = function(req, res)
                 inventories.insertOne(inventoryInfo, function(err, result) 
                 {
                     if (err) {
-                        var error = util.makeError(constant.Err_Common_FailedWriteDocument, "Failed Create User Inventory");
+                        var error = util.makeError(constant.Err_Common_FailedWriteDB, "Failed Create User Inventory");
                         res.send(util.makeWebResponse(req, null, error));
                         return;
                     }
                     
                     var inventoryInfo = {"inventory":result["ops"][0]};
                     var data = Object.assign({}, userInfo, inventoryInfo);
-                    console.dir(data);
                     res.send(util.makeWebResponse(req, data, null));
                 });
             });
@@ -105,9 +107,6 @@ var signin = function(req, res)
 {
     util.requestLog(req);
     
-    var userEmail = req.body.email;
-    var userPass = req.body.password;
-    
     // 헤더 유효성 체크
     if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
@@ -115,44 +114,37 @@ var signin = function(req, res)
         return;
     }
     
-    // 파라미터 유효성 체크 : 에러발생
+    // 파라미터 유효성 체크
+    var userEmail = req.body.email;
+    var userPass = req.body.password;
     if (!userEmail || !userPass) {
         var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
-    // 데이터 베이스 확인 : 에러발생
-    var users = util.getCollection(req.app, "instance_users");
-    if (!users) {
-        var error = util.makeError(constant.Err_Common_FailedGetCollection, "Failed get DB collection ( 'instance_users' )");
-        res.send(util.makeWebResponse(req, null, error));
-        return;
-    }
-    
-    // 기가입 확인 : 에러발생
-    users.find({"user_email":userEmail}).toArray(function(err, docs) 
+    // 가입 확인
+    util.getDocsOneAtDB(req.app, "instance_users", {"user_email":userEmail}, function(result, docs, error)
     {
-        if (err) {
-            var error = util.makeError(constant.Err_Common_FailedFindCollection, "Failed find DB collection ( 'instance_users' )");
+        if (error) {
             res.send(util.makeWebResponse(req, null, error));
             return;
         }
-
-        if (0 == docs.length) {
-            var error = util.makeError(constant.Err_Auth_NoSignupUser, "No Singup User");
+        
+        if (!docs) {
+            var error = util.makeError(constant.Err_Auth_NoSignupUser, "No Singup User")
             res.send(util.makeWebResponse(req, null, error));
             return;
         }
-
-        if (docs[0]["password"] != userPass)
+        
+        if (docs.password != userPass)
         {
             var error = util.makeError(constantModule.Err_Auth_NoMatchPassword, "No Match Password");
             res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
-        res.send(util.makeWebResponse(req, docs[0], null));
+        res.send(util.makeWebResponse(req, docs, null));
     });
 }
 

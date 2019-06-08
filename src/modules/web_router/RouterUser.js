@@ -20,28 +20,21 @@ var instance_user_inventory = function(req, res)
         return;
     }
     
-    var inventories = util.getCollection(req.app, "instance_user_inventories");
-    if (!inventories) {
-        var error = util.makeError(constant.Err_Common_FailedGetCollection, "Failed get DB collection ( 'instance_user_inventories' )");
-        res.send(util.makeWebResponse(req, null, error));
-        return;
-    }
-    
-    inventories.find({"user_id":userId}).toArray(function(err, docs) 
+    // 인벤토리 정보얻어서 리턴
+    util.getDocsOneAtDB(req.app, "instance_user_inventories", {"user_id":userId}, function(result, docs, error)
     {
-        if (err) {
-            var error = util.makeError(constant.Err_Common_FailedFindCollection, "Failed find DB collection ( 'instance_user_inventories' )");
+        if (error) {
             res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
-        if (0 == docs.length) {
-            var error = util.makeError(constant.Err_User_NoHasInventory, "No has inventory");
-            res.send(util.makeWebResponse(req, null, error));
+        if (!docs) {
+            res.send(util.makeWebResponse(req, null, 
+                        util.makeError(constant.Err_User_NoHasInventory, "No has inventory")));
             return;
         }
         
-        res.send(util.makeWebResponse(req, docs[0], null));
+        res.send(util.makeWebResponse(req, docs, error));
     });
 }
 

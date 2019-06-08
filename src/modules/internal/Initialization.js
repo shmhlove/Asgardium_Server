@@ -10,81 +10,78 @@ var init = function(expressModule, expressApp, webServer, callback)
     console.log("[LSH] called initialization");
 
     // 테이블 프리로드
-    var iLoadCount = 0;
-    var preLoadTableLen = config.pre_load_table.length;
-    for (var iLoop = 0; iLoop < preLoadTableLen; ++iLoop)
+    var loadedCollectionCount = 0;
+    var preLoadCollectionLen = config.pre_load_collection.length;
+    for (var iLoop = 0; iLoop < preLoadCollectionLen; ++iLoop)
     {
-        preLoadTable(expressApp, config.pre_load_table[iLoop], function(isSucceed, collectionName)
+        PreLoadCollection(expressApp, config.pre_load_collection[iLoop], function(result, collectionName)
         {
-            ++iLoadCount;
+            // 실패해도 서버 실행되도록 카운팅 한다.
+            ++loadedCollectionCount;
+            console.log("[LSH] preload Collection : %s (%s)", collectionName, result?"Succeed":"Failed");
         });
     }
     
     async.forever(
+        // 컬렉션 프리로드가 완료되기 까지 대기
         function(next) {
-            // 테이블 프리로드가 완료되기 까지 대기
-            next(iLoadCount >= preLoadTableLen);
+            next(loadedCollectionCount >= preLoadCollectionLen);
         },
+        // 컬렉션 프리로드 후 처리
         function(err) {
-            // DB에 인스턴스 테이블 생성
-            createInstanceCompanyTable(expressApp, callback);
+            // DB에 인스턴스 회사 테이블 생성
+            createInstanceCompanyCollection(expressApp, callback);
             
             // Web 라우터 연결
             webRouterLoader.init(expressApp, expressModule.Router());
             
             // Socket 연결
             socketRouterLoader.init(expressApp, webServer);
+            
+            // 후처리가 끝나고 나면 callback 주고싶은데..
         }
     );
 };
 
-function preLoadTable(app, collectionName, callback)
+var PreLoadCollection = function(app, collectionName, callback)
 {
-    var table = util.getCollection(app, collectionName);
-    if (!table) {
-        console.error("[LSH][loapreLoadTabledTable] not found collection ( %s )", collectionName);
-        callback(false, collectionName);
-        return;
-    }
-    
-    table.find().toArray(function(err, docs) 
+    util.getDocsAllAtDB(app, collectionName, null, function(result, docs, error)
     {
-        if (err) {
-            console.error("[LSH][preLoadTable] failed find collection ( %s )", collectionName);
-            callback(false, collectionName);
-            return;
+        if (result) {
+            app.set(collectionName, docs);
         }
-
-        if (0 == docs.length) {
-            console.error("[LSH][preLoadTable] empty collection ( %s )", collectionName);
-            callback(false, collectionName);
-            return;
-        }
-        
-        app.set(collectionName, docs);
-        callback(true, collectionName);
-        console.log("[LSH] preload Table : %s", collectionName);
+        callback(result, collectionName);
     });
-}
+};
 
-var createInstanceCompanyTable = function(app, callback)
+var createInstanceCompanyCollection = function(app, callback)
 {
-    var instanceMiningActiveCompany = util.getCollection(app, "instance_mining_active_company");
-    if (!instanceMiningActiveCompany) {
-        console.error("[LSH][createInstanceCompanyTable] not found collection ( %s )", "instance_mining_active_company");
+    var instanceCompanyTable = util.getCollectionAtDB(app, "instance_mining_active_company");
+    if (!instanceCompanyTable) {
+        console.error("[LSH] not found collection ( instance_mining_active_company )");
         callback();
         return;
     }
     
-    var iLoadCount = 0;
-    var globalConfig = app.get("global_config");
-    var miningActiveCompanyNPC = app.get("mining_active_company_npc");
-    var npcLen = miningActiveCompanyNPC.length;
+    var globalConfigTable = util.getDocsAtApp(app, "global_config");
+    if (!globalConfigTable) {
+        console.error("[LSH] not found collection ( global_config )");
+        callback();
+        return;
+    }
+    
+    var npcCompanyTable = util.getDocsAtApp(app, "mining_active_company_npc");
+    if (!npcCompanyTable) {
+        console.error("[LSH] not found collection ( mining_active_company_npc )");
+        callback();
+        return;
+    }
     
     // NPC 회사 테이블을 기반으로 인스턴스 회사 테이블 업데이트
+    var iLoadCount = 0;
+    var npcLen = npcCompanyTable.length;
     for (var iLoop = 0; iLoop < npcLen; iLoop++) {
-        var npcItem = miningActiveCompanyNPC[iLoop];
-        processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActiveCompany, function(isSucceed)
+        processInstanceCompanyTable(npcCompanyTable[iLoop], globalConfigTable, instanceCompanyTable, function(isSucceed)
         {
             ++iLoadCount;
         });
@@ -100,43 +97,43 @@ var createInstanceCompanyTable = function(app, callback)
     );
 };
 
-function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActiveCompany, callback)
+function processInstanceCompanyTable(npcCompany, globalConfigTable, instanceCompanyTable, callback)
 {
     /*
         인스턴스 회사 테이블 업데이트 아이디어
         -> 인스턴스 회사 테이블과 기본 NPC회사 테이블간 동기화
         -> 기본 NPC회사 테이블은 추가, 수정, 삭제가 될 수 있기에 인스턴스 회사 테이블에 반영하기위한 작업
 
-        npcItem.instance_id로 instanceMiningActiveCompany 테이블을 find한다.
-        (npcItem.instance_id는 수동으로 생성한 랜덤해쉬로써 static하게 기록해둔 id값)
+        npcCompany.instance_id로 instanceMiningActiveCompany 테이블을 find한다.
+        (npcCompany.instance_id는 수동으로 생성한 랜덤해쉬로써 static하게 기록해둔 id값)
 
-        테이블이 있을때 -> npcItem.is_use필드가 yes면 업데이트한다.
+        테이블이 있을때 -> npcCompany.is_use필드가 yes면 업데이트한다.
                                             no면 제거한다.
-        테이블이 없을때 -> npcItem.is_use필드가 yes면 추가한다.
+        테이블이 없을때 -> npcCompany.is_use필드가 yes면 추가한다.
                                             no면 무시한다.
     */
     
-    instanceMiningActiveCompany.findOne({"instance_id": npcItem.instance_id}, function(err, instance)
+    instanceCompanyTable.findOne({"instance_id": npcCompany.instance_id}, function(err, docs)
     {
         if (err) {
-            console.error("[LSH][createInstanceCompanyTable] failed find collection ( instanceId : %s )", npcItem.instance_id);
+            console.error("[LSH][createInstanceCompanyTable] failed find documents ( instanceId : %s )", npcCompany.instance_id);
             callback(false);
             return;
         }
-
-        if (instance) {
-            if (1 == npcItem.is_use) {
-                var npcCompanyInfo = { $set: {
-                    "instance_id" : npcItem.instance_id
-                    , "unit_id" : npcItem.unit_id
-                    , "name_str_id" : npcItem.name_str_id
-                    , "emblem_image" : npcItem.emblem_image
-                    , "efficiency_lv" : npcItem.efficiency_lv
-                    , "supply_count" : globalConfig[0].basic_active_mining_supply
-                    , "is_basic_company" : true
+        
+        if (docs) {
+            if (1 == npcCompany.is_use) {
+                var companyInfo = { $set: {
+                    "instance_id" : npcCompany.instance_id
+                    , "unit_id" : npcCompany.unit_id
+                    , "name_str_id" : npcCompany.name_str_id
+                    , "emblem_image" : npcCompany.emblem_image
+                    , "efficiency_lv" : npcCompany.efficiency_lv
+                    , "supply_count" : globalConfigTable[0].basic_active_mining_supply
+                    , "is_npc_company" : true
                 }};
-
-                instanceMiningActiveCompany.updateOne({"instance_id": npcItem.instance_id}, npcCompanyInfo, function(err)
+                
+                instanceCompanyTable.updateOne({"instance_id": npcCompany.instance_id}, companyInfo, function(err)
                 {
                     if (err) {
                         console.log("[LSH][createInstanceCompanyTable] failed DB update ( instanceId : %s )", npcItem.instance_id);
@@ -148,7 +145,7 @@ function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActive
                 });
             }
             else {
-                instanceMiningActiveCompany.delete({"instance_id": npcItem.instance_id}, function (err)
+                instanceCompanyTable.delete({"instance_id": npcCompany.instance_id}, function (err)
                 {
                     if (err) {
                         console.log("[LSH][createInstanceCompanyTable] failed DB delete ( instanceId : %s )", npcItem.instance_id);
@@ -161,21 +158,21 @@ function processInstanceCompanyTable(npcItem, globalConfig, instanceMiningActive
             }
         }
         else {
-            if (1 == npcItem.is_use) {
-                var npcCompanyInfo = {
-                    "instance_id" : npcItem.instance_id
-                    , "unit_id" : npcItem.unit_id
-                    , "name_str_id" : npcItem.name_str_id
-                    , "emblem_image" : npcItem.emblem_image
-                    , "efficiency_lv" : npcItem.efficiency_lv
-                    , "supply_count" : globalConfig[0].basic_active_mining_supply
-                    , "is_basic_company" : true
+            if (1 == npcCompany.is_use) {
+                var companyInfo = {
+                    "instance_id" : npcCompany.instance_id
+                    , "unit_id" : npcCompany.unit_id
+                    , "name_str_id" : npcCompany.name_str_id
+                    , "emblem_image" : npcCompany.emblem_image
+                    , "efficiency_lv" : npcCompany.efficiency_lv
+                    , "supply_count" : globalConfigTable[0].basic_active_mining_supply
+                    , "is_npc_company" : true
                 };
 
-                instanceMiningActiveCompany.insertOne(npcCompanyInfo, function(err, result) 
+                instanceCompanyTable.insertOne(companyInfo, function(err, result) 
                 {
                     if (err) {
-                        console.log("[LSH][createInstanceCompanyTable] failed DB insert ( instanceId : %s )", item.instance_id);
+                        console.log("[LSH][createInstanceCompanyTable] failed DB insert ( instanceId : %s )", npcCompany.instance_id);
                         callback(false);
                     }
                     else {

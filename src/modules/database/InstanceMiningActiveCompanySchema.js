@@ -11,7 +11,7 @@ Schema.createSchema = function(mongoose)
         , "emblem_image" : {type:String, "default":""}
         , "efficiency_lv" : {type:Number, "default":0}
         , "supply_count" : {type:Number, "default":0}
-        , "is_basic_company" : {type:Boolean, "default":false}
+        , "is_npc_company" : {type:Boolean, "default":false}
     });
     
     return InstanceMiningActiveCompanySchema;
