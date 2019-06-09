@@ -5,7 +5,7 @@ Schema.createSchema = function(mongoose)
     {
         user_id: {type:String, "default":""}
         , mining_power_at: {type:Date, index:{unique:false}, "default":Date.now}
-        , has_units: {type:Array }
+        , has_units: {type:Array } // {unit_id:xx, quantity:xx}
     });
     
     return InstanceUserInventoriesSchema;

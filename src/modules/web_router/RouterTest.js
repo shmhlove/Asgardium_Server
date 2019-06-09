@@ -34,32 +34,33 @@ var test_use_mining_power = function(req, res)
         return;
     }
     
-    var globalConfigTable = util.getDocsAtApp(req.app, "global_config");
-    if (!globalConfigTable) {
+    var condition = function(element) { return element.key == "global_config"; };
+    var globalConfig = util.getDocsAtApp(req.app, "global_config", condition);
+    if (!globalConfig) {
         var error = util.makeError(constant.Err_Common_FailedgetCollectionAtDB, "Not found collection ( global_config )");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
-    util.getDocsOneAtDB(req.app, "instance_users", {"user_id":userId}, function(result, docs, error)
+    util.getDocsOneAtDB(req.app, "instance_user_inventories", {"user_id":userId}, function(result, inventory, error)
     {
         if (!result) {
             res.send(util.makeWebResponse(req, null, error));
         }
         else {
-            var timeSpan = (Date.now() - docs.mining_power_at);
-            var curPowerCount = timeSpan / globalConfigTable[0].basic_charge_time;
+            var timeSpan = (Date.now() - inventory.mining_power_at);
+            var curPowerCount = timeSpan / globalConfig.basic_charge_time;
             
-            if (curPowerCount < globalConfigTable[0].basic_mining_power_count) {
-                docs.mining_power_at = Math.min(Date.now(), (docs.mining_power_at + globalConfigTable[0].basic_charge_time));
+            if (curPowerCount < globalConfig.basic_mining_power_count) {
+                inventory.mining_power_at = Math.min(Date.now(), (inventory.mining_power_at + globalConfig.basic_charge_time));
             }
             else {
-                docs.mining_power_at = Date.now() - (globalConfigTable[0].basic_charge_time * (globalConfigTable[0].basic_mining_power_count - 1));
+                inventory.mining_power_at = Date.now() - (globalConfig.basic_charge_time * (globalConfig.basic_mining_power_count - 1));
             }
             
-            util.updateOneDocumentAtDB(req.app, "instance_users", {"user_id":userId}, { mining_power_at: docs.mining_power_at }, function(result, data, error)
+            util.updateOneDocumentAtDB(req.app, "instance_user_inventories", {"user_id":userId}, inventory, function(result, data, error)
             {
-                res.send(util.makeWebResponse(req, docs, null));
+                res.send(util.makeWebResponse(req, inventory, null));
             });
         }
     });
@@ -84,24 +85,25 @@ var test_reset_mining_power = function(req, res)
         return;
     }
     
-    var globalConfigTable = util.getDocsAtApp(req.app, "global_config");
-    if (!globalConfigTable) {
+    var condition = function(element) { return element.key == "global_config"; };
+    var globalConfig = util.getDocsAtApp(req.app, "global_config", condition);
+    if (!globalConfig) {
         var error = util.makeError(constant.Err_Common_FailedgetCollectionAtDB, "Not found collection ( global_config )");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
-    util.getDocsOneAtDB(req.app, "instance_users", {"user_id":userId}, function(result, docs, error)
+    util.getDocsOneAtDB(req.app, "instance_user_inventories", {"user_id":userId}, function(result, inventory, error)
     {
         if (!result) {
             res.send(util.makeWebResponse(req, null, error));
         }
         else {
-            docs.mining_power_at = Date.now() - (globalConfigTable[0].basic_charge_time * globalConfigTable[0].basic_mining_power_count);
+            inventory.mining_power_at = Date.now() - (globalConfig.basic_charge_time * globalConfig.basic_mining_power_count);
             
-            util.updateOneDocumentAtDB(req.app, "instance_users", {"user_id":userId}, { mining_power_at: docs.mining_power_at }, function(result, data, error)
+            util.updateOneDocumentAtDB(req.app, "instance_user_inventories", {"user_id":userId}, inventory, function(result, data, error)
             {
-                res.send(util.makeWebResponse(req, docs, null));
+                res.send(util.makeWebResponse(req, inventory, null));
             });
         }
     });

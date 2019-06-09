@@ -11,7 +11,6 @@ Schema.createSchema = function(mongoose)
         , password: {type:String, "default":""}
         , created_at: {type:Date, index:{unique:false}, "default":Date.now}
         , updated_at: {type:Date, index:{unique:false}, "default":Date.now}
-        , mining_power_at: {type:Date, index:{unique:false}, "default":Date.now}
     });
     
     return InstanceUsersSchema;

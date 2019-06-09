@@ -1,5 +1,6 @@
 var crypto = require('crypto');
 var config = require("../Config");
+var constant = require("../Constant");
 var textEncoding = require('text-encoding');
 var textDecoder = textEncoding.TextDecoder;
 
@@ -8,22 +9,33 @@ var requestLog = function(req)
     console.log("[LSH] web - %s %s 요청", req.method, req.url);
 }
 
-var getDocsAtApp = function(app, collectionName, callback)
+var getDocsAtApp = function(app, collectionName, condition, callback)
 {
     var docs = app.get(collectionName);
-    if (docs) {
-        if (callback) {
-            callback(true, docs, null);
-        }
-        return docs;
-    }
-    else {
+    if (!docs) {
         if (callback) {
             var error = makeError(constant.Err_Common_FailedgetDocsAtApp, 
                                   "Not found documents in App( " + collectionName + " )");
             callback(false, null, error);
         }
         return null;
+    }
+    else {
+        if (condition) {
+            docs = docs.find(condition);
+            if (!docs) {
+                var error = makeError(constant.Err_Common_EmptyDocuments,
+                                      "Empty documents ( " + collectionName + " : " + condition.toString() + " )");
+                callback(false, null, error);
+                return null;
+            }
+        }
+        
+        if (callback) {
+            callback(true, docs, null);
+        }
+        
+        return docs;
     }
 }
 
@@ -47,7 +59,7 @@ var getDocsAllAtDB = function(app, collectionName, condition, callback)
             
             if (0 == docs.length) {
                 var error = makeError(constant.Err_Common_EmptyDocuments,
-                                      "Empty documents ( " + collectionName + " )");
+                                      "Empty documents ( " + collectionName + " : " + condition + " )");
                 callback(false, null, error);
                 return;
             }
@@ -71,6 +83,12 @@ var getDocsOneAtDB = function(app, collectionName, condition, callback)
             if (err) {
                 var error = makeError(constant.Err_Common_FailedgetDocsAtDB,
                                       "Failed find documents ( " + collectionName + " )");
+                callback(false, null, error);
+            }
+            
+            if (!docs) {
+                var error = makeError(constant.Err_Common_EmptyDocuments,
+                                      "Empty documents ( " + collectionName + " : " + condition + " )");
                 callback(false, null, error);
             }
             
@@ -103,6 +121,28 @@ var updateOneDocumentAtDB = function(app, collectionName, condition, updateData,
         }
         else {
             
+            callback(true, updateData, null);
+        }
+    });
+}
+
+var deleteOneDocumentAtDB = function(app, collectionName, condition, callback)
+{
+    var collection = getCollectionAtDB(app, collectionName);
+    if (!collection) {
+        var error = makeError(constant.Err_Common_FailedgetCollectionAtDB,
+                              "Not found collection ( " + collectionName + " )");
+        callback(false, null, error);
+    }
+    
+    collection.deleteOne(condition, function (err)
+    {
+        if (err) {
+            var error = makeError(constant.Err_Common_FailedDeleteDocuments,
+                                  "Failed delete documents ( " + collectionName + " : " + condition.toString() + " )");
+            callback(false, null, error);
+        }
+        else {
             callback(true, null, null);
         }
     });
@@ -194,6 +234,7 @@ module.exports.getDocsAllAtDB = getDocsAllAtDB;
 module.exports.getDocsOneAtDB = getDocsOneAtDB;
 module.exports.getCollectionAtDB = getCollectionAtDB;
 module.exports.updateOneDocumentAtDB = updateOneDocumentAtDB;
+module.exports.deleteOneDocumentAtDB = deleteOneDocumentAtDB;
 module.exports.makeError = makeError;
 module.exports.makeWebResponse = makeWebResponse;
 module.exports.makeSocketResponse = makeSocketResponse;

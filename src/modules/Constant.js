@@ -11,6 +11,7 @@ module.exports =
     Err_Common_JsonParse:1008,
     Err_Common_EmptyDocuments:1009,
     Err_Common_FailedUpdateDocuments:1010,
+    Err_Common_FailedDeleteDocuments:1011,
     
     Err_Auth_AlreadySignupUser:2001,
     Err_Auth_NoSignupUser:2002,
@@ -20,7 +21,5 @@ module.exports =
     Err_User_NoExistInventory:3002,
     
     Err_Mining_ZeroSupplyQuantity:4001,
-    Err_Mining_NotFoundUnitIdInGlobalUnitTable:4002,
-    Err_Mining_NotEnoughPower:4003,
-    Err_Mining_NotFoundLevelInActiveQuantityTable:4004,
+    Err_Mining_NotEnoughMiningPower:4002,
 };

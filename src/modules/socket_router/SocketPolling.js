@@ -6,13 +6,14 @@ socketPolling.startSocketPolling = function(app)
 {
     console.log("[LSH] called startSocketPolling(app, router)");
     
-    var globalConfig = app.get("global_config");
+    var condition = function(element) { return element.key == "global_config"; };
+    var globalConfig = util.getDocsAtApp(app, "global_config", condition);
     
     // 인스턴스 회사 테이블 소켓폴링
     var instanceMiningActiveCompany = setInterval(function()
     {
         socketPolling_InstanceMiningActiveCompany(app);
-    }, globalConfig[0].socket_polling_interval);
+    }, globalConfig.socket_polling_interval);
     
     //clearInterval(instanceMiningActiveCompany);
 }

@@ -38,6 +38,9 @@ var init = function(expressModule, expressApp, webServer, callback)
             // Socket 연결
             socketRouterLoader.init(expressApp, webServer);
             
+            // 타임 업데이트 체크 Polling
+            // polling.startSocketPolling(app);
+            
             // 후처리가 끝나고 나면 callback 주고싶은데..
         }
     );
@@ -63,8 +66,9 @@ var createInstanceCompanyCollection = function(app, callback)
         return;
     }
     
-    var globalConfigTable = util.getDocsAtApp(app, "global_config");
-    if (!globalConfigTable) {
+    var condition = function(element) { return element.key == "global_config"; };
+    var globalConfig = util.getDocsAtApp(app, "global_config", condition);
+    if (!globalConfig) {
         console.error("[LSH] not found collection ( global_config )");
         callback();
         return;
@@ -81,7 +85,7 @@ var createInstanceCompanyCollection = function(app, callback)
     var iLoadCount = 0;
     var npcLen = npcCompanyTable.length;
     for (var iLoop = 0; iLoop < npcLen; iLoop++) {
-        processInstanceCompanyTable(npcCompanyTable[iLoop], globalConfigTable, instanceCompanyTable, function(isSucceed)
+        processInstanceCompanyTable(npcCompanyTable[iLoop], globalConfig, instanceCompanyTable, function(isSucceed)
         {
             ++iLoadCount;
         });
@@ -97,7 +101,7 @@ var createInstanceCompanyCollection = function(app, callback)
     );
 };
 
-function processInstanceCompanyTable(npcCompany, globalConfigTable, instanceCompanyTable, callback)
+function processInstanceCompanyTable(npcCompany, globalConfig, instanceCompanyTable, callback)
 {
     /*
         인스턴스 회사 테이블 업데이트 아이디어
@@ -129,7 +133,7 @@ function processInstanceCompanyTable(npcCompany, globalConfigTable, instanceComp
                     , "name_str_id" : npcCompany.name_str_id
                     , "emblem_image" : npcCompany.emblem_image
                     , "efficiency_lv" : npcCompany.efficiency_lv
-                    , "supply_count" : globalConfigTable[0].basic_active_mining_supply
+                    , "supply_count" : globalConfig.basic_active_mining_supply
                     , "is_npc_company" : true
                 }};
                 
@@ -165,7 +169,7 @@ function processInstanceCompanyTable(npcCompany, globalConfigTable, instanceComp
                     , "name_str_id" : npcCompany.name_str_id
                     , "emblem_image" : npcCompany.emblem_image
                     , "efficiency_lv" : npcCompany.efficiency_lv
-                    , "supply_count" : globalConfigTable[0].basic_active_mining_supply
+                    , "supply_count" : globalConfig.basic_active_mining_supply
                     , "is_npc_company" : true
                 };
 

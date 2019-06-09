@@ -67,7 +67,6 @@ var signup = function(req, res)
                 , "password" : userPass
                 , "created_at" : Date.now()
                 , "updated_at" : Date.now()
-                , "mining_power_at" : 0
             };
             
             users.insertOne(userInfo, function(err, result)
@@ -82,7 +81,6 @@ var signup = function(req, res)
                     "user_id" : userId
                     , "mining_power_at" : 0
                     , "has_units" : [ ]
-                    //, "has_units" : [ {"unit_id":1010, "quantity":10}, {"unit_id":1020, "quantity":10} ]
                 };
                 
                 var userInfo = result["ops"][0];

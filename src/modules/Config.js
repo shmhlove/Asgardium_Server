@@ -40,6 +40,8 @@ module.exports =
         
         , {file:"./RouterUser", path:"/process/instance_user_inventory", method:"instance_user_inventory", type:"post"}
         
+        , {file:"./RouterMining", path:"/process/purchase_unit_at_mining_active", method:"purchase_unit_at_mining_active", type:"post"}
+        
         , {file:"./RouterTable", path:"/table/global_config", method:"global_config", type:"get"}
         , {file:"./RouterTable", path:"/table/global_unit_data", method:"global_unit_data", type:"get"}
         , {file:"./RouterTable", path:"/table/mining_active_company_npc", method:"mining_active_company_npc", type:"get"}
