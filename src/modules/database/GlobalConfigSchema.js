@@ -12,6 +12,7 @@ Schema.createSchema = function(mongoose)
         , cost_unit_company2: {type:Number, "default":0}
         , cost_unit_company3: {type:Number, "default":0}
         , socket_polling_interval: {type:Number, "default":0}
+        , schedule_refresh_active_mining: {type:String, "default":"* * * * * *"}
     });
     
     return GlobalConfigSchema;

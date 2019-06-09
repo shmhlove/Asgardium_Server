@@ -1,5 +1,6 @@
 var async = require("async");
-
+var schedule = require("node-schedule");
+    
 var config = require("../Config");
 var util = require("./Util");
 var webRouterLoader = require("../web_router/RouterLoader");
@@ -29,8 +30,8 @@ var init = function(expressModule, expressApp, webServer, callback)
         },
         // 컬렉션 프리로드 후 처리
         function(err) {
-            // DB에 인스턴스 회사 테이블 생성
-            createInstanceCompanyCollection(expressApp, callback);
+            // DB에 인스턴스 회사 테이블 리플레쉬
+            refreshInstanceCompanyCollection(expressApp, callback);
             
             // Web 라우터 연결
             webRouterLoader.init(expressApp, expressModule.Router());
@@ -38,8 +39,8 @@ var init = function(expressModule, expressApp, webServer, callback)
             // Socket 연결
             socketRouterLoader.init(expressApp, webServer);
             
-            // 타임 업데이트 체크 Polling
-            // polling.startSocketPolling(app);
+            // 타임 스케쥴링 설정
+            setTimeSchedule(expressApp);
             
             // 후처리가 끝나고 나면 callback 주고싶은데..
         }
@@ -57,7 +58,7 @@ var PreLoadCollection = function(app, collectionName, callback)
     });
 };
 
-var createInstanceCompanyCollection = function(app, callback)
+var refreshInstanceCompanyCollection = function(app, callback)
 {
     var instanceCompanyTable = util.getCollectionAtDB(app, "instance_mining_active_company");
     if (!instanceCompanyTable) {
@@ -185,6 +186,19 @@ function processInstanceCompanyTable(npcCompany, globalConfig, instanceCompanyTa
                 });
             }
         }
+    });
+}
+
+var setTimeSchedule = function(app)
+{
+    var condition = function(element) { return element.key == "global_config"; };
+    util.getDocsAtApp(app, "global_config", condition, function(result, globalConfig, error)
+    {
+        console.log("[LSH] set schedule about refresh_active_mining_company (" + globalConfig.schedule_refresh_active_mining + ")");
+        const j = schedule.scheduleJob(globalConfig.schedule_refresh_active_mining, function()
+        {
+            refreshInstanceCompanyCollection(app, function(){});
+        });
     });
 }
 
