@@ -13,6 +13,7 @@ module.exports =
         , { file:"./InstanceMiningActiveCompanySchema", collection:"instance_mining_active_company", schemaName:"InstanceMiningActiveCompanySchema", modelName:"InstanceMiningActiveCompanyModel" }
         , { file:"./InstanceUsersSchema", collection:"instance_users", schemaName:"InstanceUsersSchema", modelName:"InstanceUsersModel" }
         , { file:"./InstanceUserInventoriesSchema", collection:"instance_user_inventories", schemaName:"InstanceUserInventoriesSchema", modelName:"InstanceUserInventoriesModel" }
+        , { file:"./InstanceUserUpgradeInfoSchema", collection:"instance_user_upgrade_info", schemaName:"InstanceUserUpgradeInfoSchema", modelName:"InstanceUserUpgradeInfoModel" }
         
         , { file:"./MiningActiveCompanyNPCSchema", collection:"mining_active_company_npc", schemaName:"MiningActiveCompanyNPCSchema", modelName:"MiningActiveCompanyNPCModel" }
         , { file:"./MiningActiveQuantitySchema", collection:"mining_active_quantity", schemaName:"MiningActiveQuantitySchema", modelName:"MiningActiveQuantityModel" }
@@ -35,6 +36,7 @@ module.exports =
         , {file:"./RouterTest", path:"/process/test_use_mining_power", method:"test_use_mining_power", type:"post"}
         , {file:"./RouterTest", path:"/process/test_reset_mining_power", method:"test_reset_mining_power", type:"post"}
         
+        , {file:"./RouterAuth", path:"/process/is_signup", method:"is_signup", type:"post"}
         , {file:"./RouterAuth", path:"/process/signup", method:"signup", type:"post"}
         , {file:"./RouterAuth", path:"/process/signin", method:"signin", type:"post"}
         

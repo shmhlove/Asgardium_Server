@@ -17,7 +17,10 @@ var init = function(expressModule, expressApp, webServer, callback)
     {
         PreLoadCollection(expressApp, config.pre_load_collection[iLoop], function(result, collectionName)
         {
-            // 실패해도 서버 실행되도록 카운팅 한다.
+            // 실패해도 서버는 실행되도록 카운팅 한다.
+            // => 테이블 프리로드가 실패해도 동작하는데 문제없다.?? 문제가 있을 수 있다.
+            // => 문제가 있을 수 있다면 서버를 동작시키지 않는편이 좋을 수 있다.
+            // => 백로그에 리스팅해두자
             ++loadedCollectionCount;
             console.log("[LSH] preload Collection : %s (%s)", collectionName, result?"Succeed":"Failed");
         });

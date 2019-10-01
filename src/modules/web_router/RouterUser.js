@@ -21,20 +21,20 @@ var instance_user_inventory = function(req, res)
     }
     
     // 인벤토리 정보얻어서 리턴
-    util.getDocsOneAtDB(req.app, "instance_user_inventories", {"user_id":userId}, function(result, docs, error)
+    util.getDocsOneAtDB(req.app, "instance_user_inventories", {"user_id":userId}, function(result, inventory, error)
     {
         if (error) {
             res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
-        if (!docs) {
-            res.send(util.makeWebResponse(req, null, 
-                        util.makeError(constant.Err_User_NoHasInventory, "No has inventory")));
+        if (!inventory) {
+            var error = makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
+            res.send(util.makeWebResponse(req, null, error));
             return;
         }
         
-        res.send(util.makeWebResponse(req, docs, error));
+        res.send(util.makeWebResponse(req, inventory, error));
     });
 }
 

@@ -84,14 +84,9 @@ var getDocsOneAtDB = function(app, collectionName, condition, callback)
                 var error = makeError(constant.Err_Common_FailedgetDocsAtDB,
                                       "Failed find documents ( " + collectionName + " )");
                 callback(false, null, error);
+                return;
             }
-            
-            if (!docs) {
-                var error = makeError(constant.Err_Common_EmptyDocuments,
-                                      "Empty documents ( " + collectionName + " : " + condition + " )");
-                callback(false, null, error);
-            }
-            
+                    
             callback(true, docs, null);
         });
     }

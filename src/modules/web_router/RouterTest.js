@@ -48,6 +48,12 @@ var test_use_mining_power = function(req, res)
             res.send(util.makeWebResponse(req, null, error));
         }
         else {
+            if (!inventory) {
+                var error = makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
+                res.send(util.makeWebResponse(req, null, error));
+                return;
+            }
+            
             var timeSpan = (Date.now() - inventory.mining_power_at);
             var curPowerCount = timeSpan / globalConfig.basic_charge_time;
             
@@ -99,6 +105,12 @@ var test_reset_mining_power = function(req, res)
             res.send(util.makeWebResponse(req, null, error));
         }
         else {
+            if (!inventory) {
+                var error = makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
+                res.send(util.makeWebResponse(req, null, error));
+                return;
+            }
+            
             inventory.mining_power_at = Date.now() - (globalConfig.basic_charge_time * globalConfig.basic_mining_power_count);
             
             util.updateOneDocumentAtDB(req.app, "instance_user_inventories", {"user_id":userId}, inventory, function(result, data, error)

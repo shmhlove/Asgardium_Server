@@ -30,6 +30,12 @@ var purchase_unit_at_mining_active = function(req, res)
             return;
         }
         
+        if (!inventory) {
+            var error = makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
+            res.send(util.makeWebResponse(req, null, error));
+            return;
+        }
+        
         // DB : 액티브컴퍼니
         util.getDocsOneAtDB(req.app, "instance_mining_active_company", {"instance_id":activeCompanyInstanceId}, function(result, activeCompany, error)
         {
@@ -37,6 +43,12 @@ var purchase_unit_at_mining_active = function(req, res)
                 res.send(util.makeWebResponse(req, null, error));
                 return;
             }
+            
+        if (!activeCompany) {
+            var error = makeError(constant.Err_Common_EmptyDocuments, "Empty Mining Active Company(" + activeCompanyInstanceId + ")");
+            res.send(util.makeWebResponse(req, null, error));
+            return;
+        }
             
             // Check : 구매 가능한 공급 물량 확인
             if (!activeCompany.supply_count || 0 >= activeCompany.supply_count) {
