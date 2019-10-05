@@ -17,7 +17,7 @@ var is_signup = function(req, res)
     var userEmail = req.body.email;
     var userPass = req.body.password;
     if (!userEmail || !userPass) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
+        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterAuth.is_signup");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
@@ -42,7 +42,7 @@ var is_signup = function(req, res)
     });
 };
 
-var signup = function(req, res)
+var signup = async function(req, res)
 {
     util.requestLog(req);
     
@@ -58,7 +58,7 @@ var signup = function(req, res)
     var userName = req.body.name;
     var userPass = req.body.password;
     if (!userEmail || !userName || !userPass) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
+        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterAuth.signup");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
@@ -72,26 +72,8 @@ var signup = function(req, res)
         return;
     }
     
-    // instance_user_inventories 컬렉션 얻기
-    var inventories = util.getCollectionAtDB(req.app, "instance_user_inventories");
-    if (!inventories) {    
-        var error = util.makeError(constant.Err_Common_FailedgetCollectionAtDB,
-                                   "Failed get DB collection ( 'instance_user_inventories' )");
-        res.send(util.makeWebResponse(req, null, error));
-        return;
-    }
-    
-    // instance_user_upgrade_info 컬렉션 얻기
-    var upgrade = util.getCollectionAtDB(req.app, "instance_user_upgrade_info");
-    if (!upgrade) {    
-        var error = util.makeError(constant.Err_Common_FailedgetCollectionAtDB,
-                                   "Failed get DB collection ( 'instance_user_upgrade_info' )");
-        res.send(util.makeWebResponse(req, null, error));
-        return;
-    }
-    
     // 유저 가입상태 확인 후 유저생성
-    users.find({"user_email":userEmail}).toArray(function(err, docs) 
+    users.find({"user_email":userEmail}).toArray(async function(err, docs) 
     {
         if (err) {
             var error = util.makeError(constant.Err_Common_FailedgetDocsAtDB,
@@ -106,66 +88,24 @@ var signup = function(req, res)
             res.send(util.makeWebResponse(req, null, error));
             return;
         }
-        
-        createUserId(users, function(userId)
-        {                
-            var userInfo = {
-                "user_id" : userId
-                , "user_email" : userEmail
-                , "user_name" : userName
-                , "password" : userPass
-                , "created_at" : Date.now()
-                , "updated_at" : Date.now()
-            };
-            
-            // 유저 추가
-            users.insertOne(userInfo, function(err, result)
-            {
-                if (err) {
-                    var error = util.makeError(constant.Err_Common_FailedWriteDB, "Failed Create User");
-                    res.send(util.makeWebResponse(req, null, error));
-                    return;
-                }
+
+        createUserId(users, async function(userId)
+        {
+            try {
+                var userInfo = await createUser(users, userId, userEmail, userName, userPass);
+                var userInventory = await createInventory(req, userId);
+                var userUpgradeInfo = await createUpgradeInfo(req, userId);
                 
-                var userInfo = result["ops"][0];
+                var outData = {};
+                Object.assign(outData, userInfo, userInventory, userUpgradeInfo);
+                res.send(util.makeWebResponse(req, outData, null));
+            } catch(error) {
+                util.deleteOneDocumentAtDB(req.app, "instance_users", {"user_id":userId}, function(result, data, error){});
+                util.deleteOneDocumentAtDB(req.app, "instance_user_inventories", {"user_id":userId}, function(result, data, error){});
+                util.deleteOneDocumentAtDB(req.app, "instance_user_upgrade_info", {"user_id":userId}, function(result, data, error){});
                 
-                // 인벤토리 추가
-                var inventoryInfo = {
-                    "user_id" : userId
-                    , "mining_power_at" : 0
-                    , "has_units" : [ ]
-                };
-                inventories.insertOne(inventoryInfo, function(err, result) 
-                {
-                    if (err) {
-                        var error = util.makeError(constant.Err_Common_FailedWriteDB, "Failed Create User Inventory");
-                        res.send(util.makeWebResponse(req, null, error));
-                        return;
-                    }
-                    
-                    var inventoryInfo = {"inventory":result["ops"][0]};
-                    
-                    // 업그레이드 정보 추가
-                    var myUpgrade = {
-                        "user_id" : userId
-                        , "mining_power_lv" : 0
-                        , "charge_time_lv" : 0
-                    };
-                    upgrade.insertOne(myUpgrade, function(err, result) 
-                    {
-                        if (err) {
-                            var error = util.makeError(constant.Err_Common_FailedWriteDB, "Failed Create User UpgradeInfo");
-                            res.send(util.makeWebResponse(req, null, error));
-                            return;
-                        }
-                        
-                        var upgradeInfo = {"upgradeInfo":result["ops"][0]};
-                        
-                        var data = Object.assign({}, userInfo, inventoryInfo, upgradeInfo);
-                        res.send(util.makeWebResponse(req, data, null)); 
-                    });
-                });
-            });
+                res.send(util.makeWebResponse(req, null, error)); 
+            }
         });
     });
 };
@@ -185,7 +125,7 @@ var signin = function(req, res)
     var userEmail = req.body.email;
     var userPass = req.body.password;
     if (!userEmail || !userPass) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
+        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterAuth.signin");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
@@ -225,6 +165,116 @@ var createUserId = function(users, callback)
         }
         else {
             createUserId(users, callback);
+        }
+    });
+}
+
+var createUser = function(users, userId, userEmail, userName, userPass)
+{
+    return new Promise(function(resolve, reject) {
+        
+        console.log("[LSH] called Create User : " + userEmail);
+        
+        // Parameter 검증
+        if (!users || !userId || !userEmail || !userName || !userPass) {
+            reject(util.makeError(constant.Err_Common_InvalidParameter, "Invelid Parameter from RouterAuth.createUser"));
+            return;
+        }
+
+        var userInfo = {
+            "user_id" : userId
+            , "user_email" : userEmail
+            , "user_name" : userName
+            , "password" : userPass
+            , "created_at" : Date.now()
+            , "updated_at" : Date.now()
+        };
+        
+        users.insertOne(userInfo, function(err, result)
+        {
+            if (err) {
+                reject(util.makeError(constant.Err_Common_FailedWriteDB, "Failed Create User"))
+            }
+            else {
+                resolve(result["ops"][0]);
+            }
+        });
+    });
+}
+
+var createInventory = function(req, userId)
+{
+    return new Promise(function(resolve, reject) {
+        
+        console.log("[LSH] called Create User Inventory : " + userId);
+
+        // Parameter 검증
+        if (!req || !userId) {
+            reject(util.makeError(constant.Err_Common_InvalidParameter, "Invelid Parameter from RouterAuth.createInventory"));
+            return;
+        }
+        
+        // instance_user_inventories 컬렉션 얻기
+        var inventories = util.getCollectionAtDB(req.app, "instance_user_inventories");
+        if (!inventories) {
+            reject(util.makeError(constant.Err_Common_FailedgetCollectionAtDB,
+                                       "Failed get DB collection ( 'instance_user_inventories' )"));
+        }
+        else {
+            // 인벤토리 추가
+            var inventoryInfo = {
+                "user_id" : userId
+                , "mining_power_at" : 0
+                , "has_units" : [ ]
+            };
+            
+            inventories.insertOne(inventoryInfo, function(err, result) 
+            {
+                if (err) {
+                    reject(util.makeError(constant.Err_Common_FailedWriteDB, "Failed Create User Inventory"));
+                }
+                else {
+                    resolve({"inventory":result["ops"][0]});
+                }
+            });
+        }
+    });
+}
+
+var createUpgradeInfo = function(req, userId)
+{
+    return new Promise(function(resolve, reject) {
+        
+        console.log("[LSH] called Create User UgradeInfo : " + userId);
+        
+        // 파라미터 유효성 체크
+        if (!req || !userId) {
+            reject(util.makeError(constant.Err_Common_InvalidParameter, "Invelid Parameter from RouterAuth.createUpgradeInfo"));
+            return;
+        }
+
+        // instance_user_upgrade_info 컬렉션 얻기
+        var upgradeInfo = util.getCollectionAtDB(req.app, "instance_user_upgrade_info");
+        if (!upgradeInfo) {
+            reject(util.makeError(constant.Err_Common_FailedgetCollectionAtDB,
+                                    "Failed get DB collection ( 'instance_user_upgrade_info' )"));
+        }
+        else {
+            // 업그레이드 정보 추가
+            var myUpgradeInfo = {
+                "user_id" : userId
+                , "mining_power_lv" : 0
+                , "charge_time_lv" : 0
+            };
+            upgradeInfo.insertOne(myUpgradeInfo, function(err, result) 
+            {
+                if (err) {
+                    reject(util.makeError(constant.Err_Common_FailedWriteDB, "Failed Create User UpgradeInfo"));
+                }
+                else {
+                    resolve({"upgrade_info":result["ops"][0]});
+                }
+            });
         }
     });
 }

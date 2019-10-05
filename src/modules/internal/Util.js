@@ -150,6 +150,17 @@ var makeError = function(code, message, extras)
 
 var makeWebResponse = function(req, data, error)
 {
+    if (error) {
+        // 선언되지 않은 객체일때
+        if ("undefined" == typeof(error)) {
+            error = makeError(constant.Err_Common_Unkwon, "undefined error object", null);
+        }
+        // stack 필드가 있는 시스템 에러일때
+        if (error["stack"]) {
+            error = makeError(constant.Err_Common_Unkwon, error["stack"], null);
+        }
+    }
+    
     var result = {
         "result" : error ? false : true,
         "data" : data,
@@ -157,7 +168,7 @@ var makeWebResponse = function(req, data, error)
     };
     
     console.log("[LSH] web - %s %s 응답(%s)", req.method, req.url, result["result"] ? "succeed" : "failed");
-    
+
     return result;
 }
 

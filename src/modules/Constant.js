@@ -1,6 +1,7 @@
 // Sync Client
 module.exports = 
 {
+    Err_Common_Unkwon:-1,
     Err_Common_InvalidHeader:1001,
     Err_Common_InvalidParameter:1002,
     Err_Common_FailedgetCollectionAtDB:1003,

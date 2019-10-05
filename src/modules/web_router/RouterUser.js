@@ -15,7 +15,7 @@ var instance_user_inventory = function(req, res)
     // 파라미터 유효성 체크
     var userId = req.body.user_id;
     if (!userId) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
+        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterUser.instance_user_inventory");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
@@ -29,7 +29,7 @@ var instance_user_inventory = function(req, res)
         }
         
         if (!inventory) {
-            var error = makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
+            var error = util.makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
             res.send(util.makeWebResponse(req, null, error));
             return;
         }

@@ -29,7 +29,7 @@ var test_use_mining_power = function(req, res)
     // 파라미터 유효성 체크
     var userId = req.body.user_id;
     if (!userId) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
+        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterTest.test_use_mining_power");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
@@ -49,7 +49,7 @@ var test_use_mining_power = function(req, res)
         }
         else {
             if (!inventory) {
-                var error = makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
+                var error = util.makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
                 res.send(util.makeWebResponse(req, null, error));
                 return;
             }
@@ -86,7 +86,7 @@ var test_reset_mining_power = function(req, res)
     // 파라미터 유효성 체크
     var userId = req.body.user_id;
     if (!userId) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
+        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterTest.test_reset_mining_power");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }

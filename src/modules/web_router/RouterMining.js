@@ -17,7 +17,7 @@ var purchase_unit_at_mining_active = function(req, res)
     var userId = req.body.user_id;
     var activeCompanyInstanceId = req.body.active_company_instance_id;
     if (!userId || !activeCompanyInstanceId) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter");
+        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterMining.purchase_unit_at_mining_active");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
@@ -31,7 +31,7 @@ var purchase_unit_at_mining_active = function(req, res)
         }
         
         if (!inventory) {
-            var error = makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
+            var error = util.makeError(constant.Err_Common_EmptyDocuments, "Empty User Inventory(" + userId + ")");
             res.send(util.makeWebResponse(req, null, error));
             return;
         }
