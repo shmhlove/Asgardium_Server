@@ -41,6 +41,7 @@ module.exports =
         , {file:"./RouterAuth", path:"/process/signin", method:"signin", type:"post"}
         
         , {file:"./RouterUser", path:"/process/instance_user_inventory", method:"instance_user_inventory", type:"post"}
+        , {file:"./RouterUser", path:"/process/instance_user_upgrade_info", method:"instance_user_upgrade_info", type:"post"}
         
         , {file:"./RouterMining", path:"/process/purchase_unit_at_mining_active", method:"purchase_unit_at_mining_active", type:"post"}
         
