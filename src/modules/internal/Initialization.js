@@ -42,7 +42,7 @@ var init = function(expressModule, expressApp, webServer, callback)
             // Socket 연결
             socketRouterLoader.init(expressApp, webServer);
             
-            // 타임 스케쥴링 설정
+            // 타임 스케쥴링 설정 : 특정시간단위 반복실행 처리(기본유닛 마이닝 수량 초기화)
             setTimeSchedule(expressApp);
             
             // 후처리가 끝나고 나면 callback 주고싶은데..

@@ -4,7 +4,7 @@ var util = require("../internal/Util");
 var force_disconnect = function(app, socket, message)
 {
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(app, message.jwt_header, false)) {
+    if (false == util.checkCertificate(app, message.jwt_header)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         socket.emit('force_disconnect', util.makeSocketResponse("force_disconnect", null, error, true));
         return;
@@ -18,7 +18,7 @@ var force_disconnect = function(app, socket, message)
 var test_message = function(app, socket, message)
 {
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(app, message.jwt_header, false)) {
+    if (false == util.checkCertificate(app, message.jwt_header)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         socket.emit('test_message', util.makeSocketResponse("test_message", null, error));
         return;

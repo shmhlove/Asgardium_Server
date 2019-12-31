@@ -7,16 +7,23 @@ var purchase_unit_at_mining_active = function(req, res)
     util.requestLog(req);
     
     // Check : 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, true)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
+    // AccessToken 체크
+    var userId = util.getUserIdFromJWT(req.headers.authorization);
+    if (!userId) {
+        var error = util.makeError(constant.Err_Common_InvalidAccessToken, "Invalid User AccessToken");
+        res.send(util.makeWebResponse(req, null, error));
+        return;
+    }
+    
     // Check : 파라미터 유효성 체크
-    var userId = req.body.user_id;
     var activeCompanyInstanceId = req.body.active_company_instance_id;
-    if (!userId || !activeCompanyInstanceId) {
+    if (!activeCompanyInstanceId) {
         var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterMining.purchase_unit_at_mining_active");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -44,11 +51,11 @@ var purchase_unit_at_mining_active = function(req, res)
                 return;
             }
             
-        if (!activeCompany) {
-            var error = makeError(constant.Err_Common_EmptyDocuments, "Empty Mining Active Company(" + activeCompanyInstanceId + ")");
-            res.send(util.makeWebResponse(req, null, error));
-            return;
-        }
+            if (!activeCompany) {
+                var error = makeError(constant.Err_Common_EmptyDocuments, "Empty Mining Active Company(" + activeCompanyInstanceId + ")");
+                res.send(util.makeWebResponse(req, null, error));
+                return;
+            }
             
             // Check : 구매 가능한 공급 물량 확인
             if (!activeCompany.supply_count || 0 >= activeCompany.supply_count) {

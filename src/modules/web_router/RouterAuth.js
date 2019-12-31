@@ -7,7 +7,7 @@ var is_signup = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -47,7 +47,7 @@ var signup = async function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -96,9 +96,9 @@ var signup = async function(req, res)
                 var userInventory = await createInventory(req, userId);
                 var userUpgradeInfo = await createUpgradeInfo(req, userId);
                 
-                var outData = {};
-                Object.assign(outData, userInfo, userInventory, userUpgradeInfo);
-                res.send(util.makeWebResponse(req, outData, null));
+                var returnData = {};
+                Object.assign(returnData, userInfo, userInventory, userUpgradeInfo);
+                res.send(util.makeWebResponse(req, returnData, null));
             } catch(error) {
                 util.deleteOneDocumentAtDB(req.app, "instance_users", {"user_id":userId}, function(result, data, error){});
                 util.deleteOneDocumentAtDB(req.app, "instance_user_inventories", {"user_id":userId}, function(result, data, error){});
@@ -115,7 +115,7 @@ var signin = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -224,6 +224,7 @@ var createInventory = function(req, userId)
             // 인벤토리 추가
             var inventoryInfo = {
                 "user_id" : userId
+                , "gold" : 0
                 , "mining_power_at" : 0
                 , "has_units" : [ ]
             };

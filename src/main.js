@@ -3,7 +3,7 @@
     : ssh -i "MangoNight.pem" ubuntu@13.124.43.70
 
 - DB 실행
-    -> mac DB : sudo mongod --dbpath /data/Asgardium
+    -> mac DB : sudo mongod --dbpath /Users/HoYaMacBook/data/Asgardium
     -> win DB : mongod --dbpath "C:\Users\HoYaNoteBook\AppData\Local\MongoDB\Asgardium"
     
 - 테스트

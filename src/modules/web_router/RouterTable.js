@@ -6,7 +6,7 @@ var global_config = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -23,7 +23,7 @@ var global_unit_data = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -40,7 +40,7 @@ var mining_active_company_npc = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -57,7 +57,7 @@ var mining_active_quantity = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -74,7 +74,7 @@ var mining_active_supply = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -86,12 +86,46 @@ var mining_active_supply = function(req, res)
     });
 }
 
+var mining_active_max_mp = function(req, res)
+{
+    util.requestLog(req);
+    
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        res.send(util.makeWebResponse(req, null, error));
+        return;
+    }
+    
+    util.getDocsAtApp(req.app, "mining_active_max_mp", null, function(result, data, error)
+    {
+        res.send(util.makeWebResponse(req, data, error));
+    });
+}
+
+var mining_active_recharge_delay = function(req, res)
+{
+    util.requestLog(req);
+    
+    // 헤더 유효성 체크
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
+        var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
+        res.send(util.makeWebResponse(req, null, error));
+        return;
+    }
+    
+    util.getDocsAtApp(req.app, "mining_active_recharge_delay", null, function(result, data, error)
+    {
+        res.send(util.makeWebResponse(req, data, error));
+    });
+}
+
 var instance_users = function(req, res)
 {
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -108,7 +142,7 @@ var instance_mining_active_company = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -125,5 +159,7 @@ module.exports.global_unit_data = global_unit_data;
 module.exports.mining_active_company_npc = mining_active_company_npc;
 module.exports.mining_active_quantity = mining_active_quantity;
 module.exports.mining_active_supply = mining_active_supply;
+module.exports.mining_active_max_mp = mining_active_max_mp;
+module.exports.mining_active_recharge_delay = mining_active_recharge_delay;
 module.exports.instance_users = instance_users;
 module.exports.instance_mining_active_company = instance_mining_active_company;

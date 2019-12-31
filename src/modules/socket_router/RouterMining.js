@@ -4,16 +4,16 @@ var util = require("../internal/Util");
 var subscribe_mining_active_info = function(app, socket, message)
 {
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(app, message.jwt_header, true)) {
+    if (false == util.checkCertificate(app, message.jwt_header)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         socket.emit('subscribe_mining_active_info', util.makeSocketResponse("subscribe_mining_active_info", null, error));
         return;
     }
     
-    // 파라미터 유효성 체크
-    var userId = message.body.user_id;
+    // AccessToken 체크
+    var userId = util.getUserIdFromJWT(message.jwt_header);
     if (!userId) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterMining.subscribe_mining_active_info");
+        var error = util.makeError(constant.Err_Common_InvalidAccessToken, "Invalid User AccessToken");
         socket.emit('subscribe_mining_active_info', util.makeSocketResponse("subscribe_mining_active_info", null, error));
         return;
     }
@@ -36,17 +36,17 @@ var subscribe_mining_active_info = function(app, socket, message)
 var unsubscribe_mining_active_info = function(app, socket, message)
 {
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(app, message.jwt_header, true)) {
+    if (false == util.checkCertificate(app, message.jwt_header)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         socket.emit('unsubscribe_mining_active_info', util.makeSocketResponse("unsubscribe_mining_active_info", null, error));
         return;
     }
     
-    // 파라미터 유효성 체크
-    var userId = message.body.user_id;
+    // AccessToken 체크
+    var userId = util.getUserIdFromJWT(message.jwt_header);
     if (!userId) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterMining.unsubscribe_mining_active_info");
-        socket.emit('subscribe_mining_active_info', util.makeSocketResponse("subscribe_mining_active_info", null, error));
+        var error = util.makeError(constant.Err_Common_InvalidAccessToken, "Invalid User AccessToken");
+        socket.emit('unsubscribe_mining_active_info', util.makeSocketResponse("unsubscribe_mining_active_info", null, error));
         return;
     }
     

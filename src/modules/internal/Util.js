@@ -168,7 +168,7 @@ var makeWebResponse = function(req, data, error)
     };
     
     console.log("[LSH] web - %s %s 응답(%s)", req.method, req.url, result["result"] ? "succeed" : "failed");
-
+    
     return result;
 }
 
@@ -187,7 +187,7 @@ var makeSocketResponse = function(eventName, data, error, isLoging)
     return JSON.stringify(result);
 }
 
-var checkCertificate = function(app, jwtHeader, isCheckAccessToken)
+var checkCertificate = function(app, jwtHeader)
 {
     var headers = jwtHeader.split(".");
     
@@ -217,21 +217,41 @@ var checkCertificate = function(app, jwtHeader, isCheckAccessToken)
         return false;
     }
     
-    if (isCheckAccessToken) {
-        
-        var userId = undefined;
-        var payload = JSON.parse(new Buffer(encodedPayload, 'base64').toString('utf-8'));
-        for (var key in payload) {
-            if ("access_token" == key) {
-                userId = payload[key];
-                break;
-            }
-        }
-        
-        return undefined != userId;
-    }
+//    if (isCheckAccessToken) {
+//        
+//        var userId = undefined;
+//        var payload = JSON.parse(new Buffer(encodedPayload, 'base64').toString('utf-8'));
+//        for (var key in payload) {
+//            if ("access_token" == key) {
+//                userId = payload[key];
+//                break;
+//            }
+//        }
+//        
+//        return undefined != userId;
+//    }
     
     return true;
+}
+
+var getUserIdFromJWT = function(jwtHeader)
+{
+    var headers = jwtHeader.split(".");
+    
+    var encodedHeader = headers["0"];
+    var encodedPayload = headers["1"];
+    var clientSignature = headers["2"];
+    
+    var userId = undefined;
+    var payload = JSON.parse(new Buffer(encodedPayload, 'base64').toString('utf-8'));
+    for (var key in payload) {
+        if ("access_token" == key) {
+            userId = payload[key];
+            break;
+        }
+    }
+    
+    return userId;
 }
 
 module.exports.requestLog = requestLog;
@@ -245,3 +265,4 @@ module.exports.makeError = makeError;
 module.exports.makeWebResponse = makeWebResponse;
 module.exports.makeSocketResponse = makeSocketResponse;
 module.exports.checkCertificate = checkCertificate;
+module.exports.getUserIdFromJWT = getUserIdFromJWT;

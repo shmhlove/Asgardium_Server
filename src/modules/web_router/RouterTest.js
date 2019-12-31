@@ -6,7 +6,7 @@ var test = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, false)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
@@ -20,16 +20,16 @@ var test_use_mining_power = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, true)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
-    // 파라미터 유효성 체크
-    var userId = req.body.user_id;
+    // AccessToken 체크
+    var userId = util.getUserIdFromJWT(req.headers.authorization);
     if (!userId) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterTest.test_use_mining_power");
+        var error = util.makeError(constant.Err_Common_InvalidAccessToken, "Invalid User AccessToken");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
@@ -77,16 +77,16 @@ var test_reset_mining_power = function(req, res)
     util.requestLog(req);
     
     // 헤더 유효성 체크
-    if (false == util.checkCertificate(req.app, req.headers.authorization, true)) {
+    if (false == util.checkCertificate(req.app, req.headers.authorization)) {
         var error = util.makeError(constant.Err_Common_InvalidHeader, "Invaild Header");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
     
-    // 파라미터 유효성 체크
-    var userId = req.body.user_id;
+    // AccessToken 체크
+    var userId = util.getUserIdFromJWT(req.headers.authorization);
     if (!userId) {
-        var error = util.makeError(constant.Err_Common_InvalidParameter, "Invalid Parameter from RouterTest.test_reset_mining_power");
+        var error = util.makeError(constant.Err_Common_InvalidAccessToken, "Invalid User AccessToken");
         res.send(util.makeWebResponse(req, null, error));
         return;
     }
