@@ -104,9 +104,10 @@ var instance_user_upgrade_active_power = async function(req, res)
         var newUserInventory = await setUserInventory(req, userId, userInventory);
         
         // return
-        var returnData = {};
-        res.send(util.makeWebResponse(req, newUserUpgradeInfo, null));
-        
+        var returnData = {}
+        Object.assign(returnData, newUserUpgradeInfo, newUserInventory);
+        console.log(returnData);
+        res.send(util.makeWebResponse(req, returnData, null));
     } catch(error) {
         res.send(util.makeWebResponse(req, null, error)); 
     }
@@ -159,7 +160,10 @@ var instance_user_upgrade_active_time = async function(req, res)
         var newUserInventory = await setUserInventory(req, userId, userInventory);
         
         // return
-        res.send(util.makeWebResponse(req, newUserUpgradeInfo, null));
+        var returnData = {}
+        Object.assign(returnData, newUserUpgradeInfo, newUserInventory);
+        console.log(returnData);
+        res.send(util.makeWebResponse(req, returnData, null));
         
     } catch(error) {
         res.send(util.makeWebResponse(req, null, error)); 
@@ -266,7 +270,7 @@ var setUserInventory = function(req, userId, inventoryInfo)
                 return;
             }
             
-            resolve(data);
+            resolve({"inventory_info":data["$set"]});
         });
         
     });
@@ -285,7 +289,7 @@ var setUserUpgradeInfo = function(req, userId, upgradeInfo)
                 return;
             }
             
-            resolve(data);
+            resolve({"upgrade_info":data["$set"]});
         });
         
     });
