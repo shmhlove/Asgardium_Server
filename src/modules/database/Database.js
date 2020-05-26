@@ -13,7 +13,7 @@ var connect = function(app)
     console.log("[LSH] Try Connect DB(%s)", config.db_url);
     
     mongoose.Promise = global.Promise;
-    mongoose.connect(config.db_url, { useCreateIndex: true, useNewUrlParser: true });
+    mongoose.connect(config.db_url, { useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true });
     database.db = mongoose.connection;
     
     database.db.on("error", console.error.bind(console, "Mongoose error"));
