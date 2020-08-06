@@ -1,8 +1,6 @@
 /*
 - AWS 접속
-    : ssh -i "MangoNight.pem" ubuntu@13.124.43.70
-      ssh -i "MangoNight.pem" ubuntu@ec2-15-164-50-110.ap-northeast-2.compute.amazonaws.com
-      IP : 15.164.50.110
+    : sudo ssh -i "MangoNight.pem" ubuntu@13.209.41.174
       
 - DB 실행
     -> mac DB : sudo mongod --dbpath /Users/HoYaMacBook/data/Asgardium
