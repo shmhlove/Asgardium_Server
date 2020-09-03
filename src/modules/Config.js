@@ -1,6 +1,6 @@
 module.exports = 
 {
-    server_host : "13.124.43.70",
+    server_host : "13.209.41.174",
     //server_host : "localhost",
     server_port : 3001,
     
