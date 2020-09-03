@@ -3,7 +3,7 @@ module.exports =
     server_host : "13.209.41.174",
     //server_host : "localhost",
     server_port : 3001,
-    server_mode : "http",
+    server_mode : "https",
     
     db_url : "mongodb://localhost:27017/Asgardium",
     db_schemas: 
