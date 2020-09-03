@@ -189,6 +189,11 @@ var makeSocketResponse = function(eventName, data, error, isLoging)
 
 var checkCertificate = function(app, jwtHeader)
 {
+    if ("http" == config.server_mode)
+    {
+        return true;
+    }
+    
     var headers = jwtHeader.split(".");
     
     var encodedHeader = headers["0"];

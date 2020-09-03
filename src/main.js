@@ -9,7 +9,7 @@
 	-> Test   : http://127.0.0.1/27017
 	
 - 테스트
-    -> local : https://localhost:3001/process/test
+    -> local : http://localhost:3001/process/test
     -> aws : https://13.209.41.174:3001/process/test
 
 - 기타정보
@@ -25,7 +25,6 @@ var expressStatic = require("serve-static");
 var expressBodyParser = require("body-parser");
 
 // 3rd party modules : Utility
-var https = require("https");
 var path = require("path");
 var shell = require("shelljs");
 var cors = require("cors");
@@ -38,17 +37,20 @@ var initialization = require("./modules/internal/Initialization");
 
 var expressApp = express();
 
-
-// HTTPS용 인증서
-var options = {  
-    key: fs.readFileSync(path.join(__dirname, "keys", "HTTPS_key.pem")),
-    cert: fs.readFileSync(path.join(__dirname, "keys", "HTTPS_cert.pem"))
-};
-
 // 포트 및 호스트 설정
 expressApp.set("port", config.server_port);
 expressApp.set("host", config.server_host);
-expressApp.set("certificate", options);
+
+// HTTPS용 인증서 설정
+if ("https" == config.server_mode)
+{
+    var options = {  
+        key: fs.readFileSync(path.join(__dirname, "keys", "HTTPS_key.pem")),
+        cert: fs.readFileSync(path.join(__dirname, "keys", "HTTPS_cert.pem"))
+    };
+    
+    expressApp.set("certificate", options);
+}
 
 // body파서 등록(POST방식에서 body를 쉽게 읽을 수 있도록)
 expressApp.use(expressBodyParser.urlencoded({extended: false}));
@@ -87,21 +89,46 @@ else {
     }
 }
 
-// HTTPS 웹서버 시작
-var webServer = https.createServer(options, expressApp).listen(expressApp.get("port"), function()
+if ("http" == config.server_mode)
 {
-    console.log("[LSH] Start Express HTTPS Server");
-    
-    var initServer = setInterval(function()
+    // HTTP 웹서버 시작
+    var http = require("http");
+    var webServer = http.createServer(expressApp).listen(expressApp.get("port"), function()
     {
-        var database = expressApp.get("database");
-        if (database) {
-            initialization.init(express, expressApp, webServer, function()
-            {
-                console.log("[LSH] Ready Express HTTPS Server : %s:%s", 
-                            expressApp.get("host"), expressApp.get("port"));
-            });
-            clearInterval(initServer);
-        }
-    }, 100);
-});
+        console.log("[LSH] Start Express HTTP Server");
+
+        var initServer = setInterval(function()
+        {
+            var database = expressApp.get("database");
+            if (database) {
+                initialization.init(express, expressApp, webServer, function()
+                {
+                    console.log("[LSH] Ready Express HTTP Server : %s:%s", 
+                                expressApp.get("host"), expressApp.get("port"));
+                });
+                clearInterval(initServer);
+            }
+        }, 100);
+    });
+}
+else
+{
+    var https = require("https");
+    var webServer = https.createServer(options, expressApp).listen(expressApp.get("port"), function()
+    {
+        console.log("[LSH] Start Express HTTPS Server");
+
+        var initServer = setInterval(function()
+        {
+            var database = expressApp.get("database");
+            if (database) {
+                initialization.init(express, expressApp, webServer, function()
+                {
+                    console.log("[LSH] Ready Express HTTPS Server : %s:%s", 
+                                expressApp.get("host"), expressApp.get("port"));
+                });
+                clearInterval(initServer);
+            }
+        }, 100);
+    });
+}
