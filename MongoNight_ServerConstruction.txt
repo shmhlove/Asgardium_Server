@@ -1,0 +1,35 @@
+Asgardium - MangoNight
+
+서버코드 다운로드
+	git clone https://github.com/shmhlove/Asgardium_Server.git
+
+NodeJS 설치
+	sudo apt-get install nodejs
+	node -v
+	
+NPM 설치
+	sudo apt-get install npm
+	npm -v
+
+MongoDB 설치
+	sudo apt-get update
+	sudo apt-get install mongodb
+	sudo systemctl status mongodb
+	sudo mongo --eval 'db.runCommand({ connectionStatus: 1 })'
+	sudo systemctl stop mongodb
+	sudo systemctl start mongodb
+	sudo systemctl restart mongodb
+	sudo systemctl enable mongodb
+	sudo systemctl disable mongodb
+	
+MongoDB 덤프 및 복원
+	mongodump --out "output 경로" --host 127.0.0.1 --port 27017
+	mongorestore --host 127.0.0.1 --port 27017 "덤프파일 위치"
+	
+PM2 설치
+	sudo npm install -g pm2@latest
+
+서버실행
+    pm2 start main.js
+	pm2 list
+	pm2 log 0
